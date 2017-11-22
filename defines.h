@@ -23,6 +23,7 @@ enum Particles {
 	kVeto2,
 	kVeto3,
 	kVeto4,
+	kFW,
 	kNPartTypes
 };
 
