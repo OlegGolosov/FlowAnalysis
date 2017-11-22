@@ -10,3 +10,5 @@ Instructions:
 5. Launch root from the project folder and run the desired script
 
 That must be it
+
+NB! Slurm scripts have not been tested yet
