@@ -6,8 +6,8 @@ void RunConvertation (TString inputFileName = "../Source", TString outputFileNam
 	clock_t begin = clock();
 //	inputFileName = "/lustre/nyx/cbm/users/ogolosov/NA49_data/3154";
 //	outputFileName = "/lustre/nyx/cbm/users/ogolosov/NA49_conv/3154";
-//	inputFileName = "Data/3154";
-//	outputFileName = "Converted/3154";
+	inputFileName = "Data/3154";
+	outputFileName = "Converted/3154";
 
     Int_t dEdxSource = 3;
     Int_t centMethod = 1;
