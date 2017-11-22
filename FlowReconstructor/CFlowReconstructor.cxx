@@ -1392,7 +1392,9 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
             else if (pid == kVeto2) weight = Eveto [1] / summEveto;
             else if (pid == kVeto3) weight = Eveto [2] / summEveto;
             else if (pid == kVeto4) weight = Eveto [3] / summEveto;
+            else if (pid == kFW) weight = charge;
             else weight = 1.0;
+
 
             subeventIndex = r.Rndm (); // random subevent
 
@@ -1411,7 +1413,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                     if (pid == resParticles [i][0][j]) {
                         if (eta > etaLim_ [i][0] && eta < etaLim_ [i][1] && pt > ptLim_ [i][0] && pt < ptLim_ [i][1]) {
                             if (n == 1 && pid == kProton) phi += TMath::Pi (); // patch
-                            QnMan -> AddDataVector (kNDetectors * i + kDetector1A, phi);
+                            QnMan -> AddDataVector (kNDetectors * i + kDetector1A, phi, weight);
                             subeventFlag [i][itrack - 1] = 1;
                             mha [i] ++;
                             h2PtEtaA [i] -> Fill (pt, eta);
@@ -1427,7 +1429,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                     if (pid == resParticles [i][1][j]) {
                         if (eta > etaLim_ [i][2] && eta < etaLim_ [i][3] && pt > ptLim_ [i][2] && pt < ptLim_ [i][3]) {
                             if (n == 1 && pid == kProton) phi += TMath::Pi (); // patch
-                            QnMan -> AddDataVector (kNDetectors * i + kDetector1B, phi);
+                            QnMan -> AddDataVector (kNDetectors * i + kDetector1B, phi, weight);
                             subeventFlag [i][itrack - 1] = 2;
                             mhb [i] ++;
                             h2PtEtaB [i] -> Fill (pt, eta);
