@@ -8,31 +8,32 @@
 using namespace std;
 
 int RunFlowAnalysis (TString option = "all", TString histFileName = "", TString nonUniformInputFileName = "", TString uniformInputFileName = "") {
+// options: "corelations", "flow", "all"
+// histFileName: route to files with histograms without ".root"
+// nonUniformInputFileName: route to file with data without ".root"
+// nonUniformInputFileName: route to file with simulations without ".root"
 
 //    nonUniformInputFileName = "/lustre/nyx/cbm/users/ogolosov/NA49_conv/3154_full_mh"; // NA49
 //    histFileName = "/u/ogolosov/NA49_flow/3154"; // NA49
-    nonUniformInputFileName = "Converted/3154_full_mh"; // NA49
-    histFileName = "Flow/3154"; // NA49
-
-
-    cout << "HERE!!!!\n";
+//    nonUniformInputFileName = "Converted/3154_full_mh"; // NA49
+//    histFileName = "Flow/3154"; // NA49
 
 	CFlowReconstructor flowReconstructor;
 	flowReconstructor.SetNonUniformInputFileName (nonUniformInputFileName);
 //	flowReconstructor.SetUniformInputFileName (uniformInputFileName);
 	flowReconstructor.SetHistFileName (histFileName);
-	flowReconstructor.UseZeroSubevents ();
+	flowReconstructor.UseZeroSubevents (0); // do not touch
 //	flowReconstructor.SetSamplingMethod (kBootStrapping);
 	flowReconstructor.SetSamplingMethod (kSubsampling);
 	flowReconstructor.PropagateResolutionSign ();
-    flowReconstructor.SetNsteps (3);
+    flowReconstructor.SetNsteps (kTwistAndRescale);
 //	flowReconstructor.SetComment (comment); // not implemented
 
 	flowReconstructor.AddHarmonic (1);
 	flowReconstructor.AddHarmonic (2);
 //	flowReconstructor.SetVariable("eta");
 	flowReconstructor.SetVariable("y");
-	flowReconstructor.SetNbinsBS (100);
+	flowReconstructor.SetNbinsBS (100); // number of samples
 
 //	flowReconstructor.SetReferenceOption (1, "x");
 //	flowReconstructor.SetReferenceOption (2, "y");
