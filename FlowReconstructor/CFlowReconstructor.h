@@ -47,6 +47,14 @@ enum SamplingMethods {
     kNSamplingMethods
 };
 
+enum CorrectionSteps {
+    kNoCorrections = 0,
+    kRecentering,
+    kTwistAndRescale,
+    kNCorrectionSteps
+};
+
+
 const TString VarNames [kNVars] = {"Run number", "Multiplicity", "Centrality", "Pt", "Eta"};
 const TString DetectorNames [kNDetectors] = {"Detector one", "Detector oneA", "Detector oneB", "Detector oneC"};
 const TString dirName [5] = {"Not_Corrected", "Recentered", "Diagonalized", "Uniform_Acceptance", "Analytic"};
