@@ -1,0 +1,1 @@
+rootcint -f DtDict.cxx -c ../MyDataTree/CTrack.h ../MyDataTree/CEvent.h ../MyDataTree/LinkDef.h

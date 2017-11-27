@@ -5,7 +5,7 @@
 #include <TClonesArray.h>
 #include <vector>
 #include "CTrack.h"
-#include "../defines.h"
+#include "../config.h"
 
 using namespace std;
 

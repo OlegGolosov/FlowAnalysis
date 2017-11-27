@@ -5,7 +5,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include "../MyDataTree/CEvent.h"
-#include "../defines.h"
+#include "../config.h"
 #include "../ManualFunctions.h"
 
 class CTreeConverter {

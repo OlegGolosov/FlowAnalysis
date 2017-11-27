@@ -4,7 +4,7 @@
 #include <map>
 #include <TString.h>
 #include "../MyDataTree/CEvent.h"
-#include "../defines.h"
+#include "../config.h"
 
 using namespace std;
 

@@ -6,36 +6,36 @@
 #include <TRandom3.h>
 #include <TMath.h>
 #include <TF1.h>
-#include "/MyDataTree/CTrack.h"
-#include "defines.h"
+#include "MyDataTree/CTrack.h"
+#include "config.h"
 
 using namespace std;
 
-//Float_t GetCentralityClass (Int_t mh) {
-////    static const Int_t nCentClasses = 20;
-////	Float_t centClassLimits [nCentClasses - 1] = {369.1, 314.227, 267.141, 226.301, 189.785, 157.113, 128.285,
-////        103.781, 82.6406, 63.9023, 44.6836, 20.6602, 0, 0, 0, 0, 0, 0, 0};
-//    static const Int_t nCentClasses = 100;
-//	Float_t centClassLimits [nCentClasses - 1] = {424.02, 406.301, 391.289, 377.754, 364.957, 352.406, 340.348,
-//        329.027, 317.953, 307.371, 297.035, 287.438, 277.84, 268.734, 259.629, 250.646, 242.156, 234.035, 225.914,
-//        218.285, 210.779, 203.52, 196.383, 189.615, 182.848, 176.326, 170.051, 163.898, 157.746, 151.963, 146.303,
-//        140.766, 135.413, 130.122, 125.2, 120.278, 115.418, 110.865, 106.497, 102.129, 97.7607, 93.6387, 89.5781,
-//        85.7021, 82.0107, 78.2578, 74.6279, 71.2441, 67.9219, 64.7227, 61.6465, 58.5703, 55.6787, 52.9717, 50.2646,
-//        47.6807, 45.1582, 42.728, 40.3901, 38.1138, 36.022, 33.9917, 32.0845, 30.1465, 28.3315, 26.5781, 24.9478,
-//        23.3789, 21.887, 20.4719, 19.1184, 17.8264, 16.6575, 15.5193, 14.4734, 13.4429, 12.5046, 11.5664, 10.7051,
-//        9.90527, 9.18237, 8.47485, 7.82886, 7.21362, 6.65991, 6.12927, 5.65247, 5.17566, 4.76807, 4.38354, 3.99133,
-//        3.66064, 3.31458, 2.96466, 2.61859, 2.28021, 1.92645, 1.48041, 1.04205};
-//        Float_t centClassWidth = 1.0 / nCentClasses;
-//
-//        printf ("New centrality!!!\t%i\t%f\n", nCentClasses, centClassWidth); // test
-//
-//	if (mh >= centClassLimits [0]) return centClassWidth * 0.5;
-//	for (Int_t i = 1; i < nCentClasses - 1; i++) {
-//        if (mh < centClassLimits [i - 1] && mh >= centClassLimits [i]) return centClassWidth * (i + 0.5);
-//	}
-//	if (mh < centClassLimits [nCentClasses - 2]) return 1.0 - centClassWidth * 0.5;
-//	return -1.0;
-//}
+Float_t GetCentralityClass (Int_t mh) {
+//    static const Int_t nCentClasses = 20;
+//	Float_t centClassLimits [nCentClasses - 1] = {369.1, 314.227, 267.141, 226.301, 189.785, 157.113, 128.285,
+//        103.781, 82.6406, 63.9023, 44.6836, 20.6602, 0, 0, 0, 0, 0, 0, 0};
+    static const Int_t nCentClasses = 100;
+	Float_t centClassLimits [nCentClasses - 1] = {424.02, 406.301, 391.289, 377.754, 364.957, 352.406, 340.348,
+        329.027, 317.953, 307.371, 297.035, 287.438, 277.84, 268.734, 259.629, 250.646, 242.156, 234.035, 225.914,
+        218.285, 210.779, 203.52, 196.383, 189.615, 182.848, 176.326, 170.051, 163.898, 157.746, 151.963, 146.303,
+        140.766, 135.413, 130.122, 125.2, 120.278, 115.418, 110.865, 106.497, 102.129, 97.7607, 93.6387, 89.5781,
+        85.7021, 82.0107, 78.2578, 74.6279, 71.2441, 67.9219, 64.7227, 61.6465, 58.5703, 55.6787, 52.9717, 50.2646,
+        47.6807, 45.1582, 42.728, 40.3901, 38.1138, 36.022, 33.9917, 32.0845, 30.1465, 28.3315, 26.5781, 24.9478,
+        23.3789, 21.887, 20.4719, 19.1184, 17.8264, 16.6575, 15.5193, 14.4734, 13.4429, 12.5046, 11.5664, 10.7051,
+        9.90527, 9.18237, 8.47485, 7.82886, 7.21362, 6.65991, 6.12927, 5.65247, 5.17566, 4.76807, 4.38354, 3.99133,
+        3.66064, 3.31458, 2.96466, 2.61859, 2.28021, 1.92645, 1.48041, 1.04205};
+        Float_t centClassWidth = 1.0 / nCentClasses;
+
+        printf ("New centrality!!!\t%i\t%f\n", nCentClasses, centClassWidth); // test
+
+	if (mh >= centClassLimits [0]) return centClassWidth * 0.5;
+	for (Int_t i = 1; i < nCentClasses - 1; i++) {
+        if (mh < centClassLimits [i - 1] && mh >= centClassLimits [i]) return centClassWidth * (i + 0.5);
+	}
+	if (mh < centClassLimits [nCentClasses - 2]) return 1.0 - centClassWidth * 0.5;
+	return -1.0;
+}
 
 void GetPsi (map <TString, Float_t> &variables) {
 	Float_t psi = gRandom -> Rndm () * 2 * PI;

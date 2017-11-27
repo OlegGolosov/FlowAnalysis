@@ -42,3 +42,10 @@ void RunConvertation (TString inputFileName = "../Source", TString outputFileNam
     printf("CPU time: %f\n",timer.CpuTime());
     printf("\nConverted!\n");
 }
+
+# ifndef __CINT__
+int main (int argc, char *argv []) {
+    RunConvertation ();
+    return 0;
+}
+# endif

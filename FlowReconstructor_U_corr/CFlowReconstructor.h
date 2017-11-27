@@ -11,7 +11,7 @@
 #include <TProfile2D.h>
 #include <TProfile3D.h>
 #include "../QnCorrections/QnCorrectionsManager.h"
-#include "../config.h"
+#include "defines.h"
 
 using namespace std;
 
@@ -46,14 +46,6 @@ enum SamplingMethods {
     kBootStrapping,
     kNSamplingMethods
 };
-
-enum CorrectionSteps {
-    kNoCorrections = 1,
-    kRecentering,
-    kTwistAndRescale,
-    kNCorrectionSteps
-};
-
 
 const TString VarNames [kNVars] = {"Run number", "Multiplicity", "Centrality", "Pt", "Eta"};
 const TString DetectorNames [kNDetectors] = {"Detector one", "Detector oneA", "Detector oneB", "Detector oneC"};
@@ -159,17 +151,14 @@ private:
 	void CalculateCorrelationsWithSampling (TProfile2D *p2XaXb, TProfile *pXaXb);
 	void CalculateResolutionNoSampling (TProfile *pXaXb, TProfile *pXaXc, TProfile *pXbXc, TH1F *hRa, TH1F *hRb, TH1F *hRc);
 	void CalculateResolutionWithSampling (TProfile2D *p2XaXb, TProfile2D *p2XaXc, TProfile2D *p2XbXc, TH2F *h2Ra, TH2F *h2Rb, TH2F *h2Rc);
-	void CalculateFlowNoSampling (TProfile *pxX, TH1 *hR, TH1 *hV, Int_t sign);
-	void CalculateFlowNoSampling (TProfile2D *p2xX, TH1 *hR, TH1 *hV, Int_t lowerBin, Int_t higherBin, Int_t sign);
-	void CalculateFlowWithSampling (TProfile2D *p2xX, TH2 *h2R, TProfile2D *h2V, Int_t sign);
-	void CalculateFlowWithSampling (TProfile3D *p3xX, TH2 *h2R, TProfile2D *h2V, Int_t lowerBin, Int_t higherBin, Int_t sign);
+	void CalculateFlow (TProfile3D *p3xX, TH2F *h2R, TProfile2D *h2V, Int_t lowerBin, Int_t higherBin, Int_t sign);
+	void CalculateFlow (TProfile2D *p2xX, TH2 *h2R, TProfile2D *h2V, Int_t sign);
 	void TH2toTH1withSampling (TH2 *h2In, TH1 *hOut, TDirectory *dir = 0);
 	void ReflectRapidity (TH1F *hVEta, TH1F *hVEtaRefl, Int_t nHarmonic);
 	void PlotKinematics (TFile *corrFile, TDirectory *outputDir, Int_t nHarmonic, Int_t step);
 	void PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1 *hList3 [9], TH1 *hList4 [9], Int_t nHist, TDirectory *dir);
 	void CombineSubevents (TH2 *pa, TH2 *pb, TH2 *pc, TH2 *p);
-	void CombineSubevents (TH1 *ha, TH1 *hb, TH1 *hc, TH1 *h);
-	void PlotFlow (TH1 *hList1 [5], TH1 *hList2 [5], TH1 *hList3 [5] = 0, TH1 *hList4 [5] = 0);
+	void PlotFlow (TH1 *h1, TH1 *h2, TH1 *h3, TH1 *h4, TH1 *h5 = 0, TH1 *h6 = 0, TH1 *h7 = 0, TH1 *h8 = 0, TH1 *h9 = 0, TH1 *h10 = 0);
 	void BuildSampleTree (TTree *inputTree);
 	void WritePreviousResults (TDirectory *dir);
 };
