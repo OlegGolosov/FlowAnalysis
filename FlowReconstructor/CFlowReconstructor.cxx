@@ -2485,7 +2485,7 @@ void CFlowReconstructor::CalculateFlowNoSampling (TProfile2D *p2xX, TH1 *hR, TH1
             R = hR -> GetBinContent (j);
             Rerr = hR -> GetBinError (j);
             V += 2.0 * xX / R;
-            Verr += V * V * (xXerr * xXerr + Rerr * Rerr);
+            Verr += V * V * (xXerr * xXerr / xX / xX + Rerr * Rerr / R / R);
         }
         V /= (Float_t) nClasses;
         Verr = TMath::Sqrt (Verr);
@@ -2602,7 +2602,7 @@ void CFlowReconstructor::SetResolutionMethod (Int_t resMethod) {
     resMethod_ = resMethod;
 }
 
-void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1 *hList3 [9], TH1 *hList4 [9], Int_t nHist, TDirectory *dir) {
+void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1 *hList3 [9], TH1 *hList4 [9], Int_t nHist) {
 //    Int_t markerColors [8] = {1, 2, 3, 4, 6, 8, 9, 46};
 //    Int_t markerStyles [8] = {24, 25, 26, 27, 28, 30, 32, 5};
     Int_t markerColors [7] = {1, 2, 3, 4, 2, 12, 28};
@@ -2610,7 +2610,6 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
     Int_t markerStyles2 [14] = {20, 21, 22, 23, 29, 33, 34, 24, 25, 26, 32, 30, 27, 28};
     char sub [3] = {'a', 'b', 'c'}, sub1 [3] = {'a', 'a', 'b'}, sub2 [3] = {'b', 'c', 'c'};
     char q [] = {'x', 'y', 'q'}, Q [] = {'X', 'Y', 'Q'};
-    dir -> cd ();
 
     Int_t k, nHarmonic;
     TString method, eventClassVariable, histName = hList1 [0] -> GetName ();
@@ -2648,13 +2647,14 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
             hs -> Add (hList1 [k]);
 //            HistShift (hList1 [k], -shift);
 
-            // sampling
-            hList2 [k] -> SetMarkerStyle (markerStyles2 [j]);
-            hList2 [k] -> SetMarkerColor (markerColors [j]);
-            hList2 [k] -> SetLineColor (markerColors [j]);
-            HistShift (hList2 [k], shift + 0.05);
-            hs -> Add (hList2 [k]);
-//            HistShift (hList2 [k], -shift - 0.05);
+            if (samplingMethod_ != kNoSampling) {
+                hList2 [k] -> SetMarkerStyle (markerStyles2 [j]);
+                hList2 [k] -> SetMarkerColor (markerColors [j]);
+                hList2 [k] -> SetLineColor (markerColors [j]);
+                HistShift (hList2 [k], shift + 0.05);
+                hs -> Add (hList2 [k]);
+//                HistShift (hList2 [k], -shift - 0.05);
+            }
         }
         hs -> Draw ("nostack p e1X0");
         gPad -> BuildLegend () -> SetFillColor (0);
@@ -2682,13 +2682,14 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
             hs -> Add (hList3 [k]);
 //            HistShift (hList3 [k], -shift);
 
-            // sampling
-            hList4 [k] -> SetMarkerStyle (markerStyles2 [j]);
-            hList4 [k] -> SetMarkerColor (markerColors [j]);
-            hList4 [k] -> SetLineColor (markerColors [j]);
-            HistShift (hList4 [k], shift + 0.05);
-            hs -> Add (hList4 [k]);
-//            HistShift (hList4 [k], -shift - 0.05);
+            if (samplingMethod_ != kNoSampling) {
+                hList4 [k] -> SetMarkerStyle (markerStyles2 [j]);
+                hList4 [k] -> SetMarkerColor (markerColors [j]);
+                hList4 [k] -> SetLineColor (markerColors [j]);
+                HistShift (hList4 [k], shift + 0.05);
+                hs -> Add (hList4 [k]);
+//                HistShift (hList4 [k], -shift - 0.05);
+            }
         }
         hs -> Draw ("nostack p e1X0");
         gPad -> BuildLegend () -> SetFillColor (0);
@@ -2713,14 +2714,14 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
             hsa [j] -> Add (hList1 [k]);
 //            HistShift (hList1 [k], - shift);
 
-            // sampling
-            hList2 [k] -> SetMarkerStyle (markerStyles2 [j]);
-            hList2 [k] -> SetMarkerColor (markerColors [j]);
-            hList2 [k] -> SetLineColor (markerColors [j]);
-            HistShift (hList2 [k], shift + 0.05);
-            hsa [j] -> Add (hList2 [k]);
-//            HistShift (hList2 [k], - shift - 0.05);
-
+            if (samplingMethod_ != kNoSampling) {
+                hList2 [k] -> SetMarkerStyle (markerStyles2 [j]);
+                hList2 [k] -> SetMarkerColor (markerColors [j]);
+                hList2 [k] -> SetLineColor (markerColors [j]);
+                HistShift (hList2 [k], shift + 0.05);
+                hsa [j] -> Add (hList2 [k]);
+//                HistShift (hList2 [k], - shift - 0.05);
+            }
             hsa [j] -> Draw ("nostack p e1X0");
             gPad -> BuildLegend () -> SetFillColor (0);
 //            gPad -> BuildLegend (0.5, 0.2, 0.85, 0.5) -> SetFillColor (0);
@@ -2736,13 +2737,14 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
             hsa [3] -> Add (hList3 [k]);
 //            HistShift (hList3 [k], - shift);
 
-            // sampling
-            hList4 [k] -> SetMarkerStyle (markerStyles2 [j]);
-            hList4 [k] -> SetMarkerColor (markerColors [j]);
-            hList4 [k] -> SetLineColor (markerColors [j]);
-            HistShift (hList4 [k], shift + 0.05);
-            hsa [3] -> Add (hList4 [k]);
-//            HistShift (hList4 [k], - shift - 0.05);
+            if (samplingMethod_ != kNoSampling) {
+                hList4 [k] -> SetMarkerStyle (markerStyles2 [j]);
+                hList4 [k] -> SetMarkerColor (markerColors [j]);
+                hList4 [k] -> SetLineColor (markerColors [j]);
+                HistShift (hList4 [k], shift + 0.05);
+                hsa [3] -> Add (hList4 [k]);
+//                HistShift (hList4 [k], - shift - 0.05);
+            }
         }
         hsa [3] -> Draw ("nostack p e1X0");
         gPad -> BuildLegend () -> SetFillColor (0);
@@ -2814,24 +2816,25 @@ void CFlowReconstructor::PlotFlow (TH1 *hList1 [5], TH1 *hList2 [5], TH1 *hList3
             hList3 [i] -> SetLineColor (markerColors [i]);
             HistShift (hList3 [i], shift);
             hs -> Add (hList3 [i]);
-    //        HistShift (hList3 [i], -shift);
+//            HistShift (hList3 [i], -shift);
         }
 
-        // sampling
-        hList2 [i] -> SetMarkerStyle (markerStyles2 [i]);
-        hList2 [i] -> SetMarkerColor (markerColors [i]);
-        hList2 [i] -> SetLineColor (markerColors [i]);
-        HistShift (hList2 [i], shift + 0.05);
-        hs -> Add (hList2 [i]);
-//        HistShift (hList2 [i], -shift - 0.05);
+        if (samplingMethod_ != kNoSampling) {
+            hList2 [i] -> SetMarkerStyle (markerStyles2 [i]);
+            hList2 [i] -> SetMarkerColor (markerColors [i]);
+            hList2 [i] -> SetLineColor (markerColors [i]);
+            HistShift (hList2 [i], shift + 0.05);
+            hs -> Add (hList2 [i]);
+//            HistShift (hList2 [i], -shift - 0.05);
 
-        if (hList4 != 0) { // reflected
-            hList4 [i] -> SetMarkerStyle (markerStyles2 [i]);
-            hList4 [i] -> SetMarkerColor (markerColors [i]);
-            hList4 [i] -> SetLineColor (markerColors [i]);
-            HistShift (hList4 [i], shift + 0.05);
-            hs -> Add (hList4 [i]);
-    //        HistShift (hList4 [i], -shift - 0.05);
+            if (hList4 != 0) { // reflected
+                hList4 [i] -> SetMarkerStyle (markerStyles2 [i]);
+                hList4 [i] -> SetMarkerColor (markerColors [i]);
+                hList4 [i] -> SetLineColor (markerColors [i]);
+                HistShift (hList4 [i], shift + 0.05);
+                hs -> Add (hList4 [i]);
+//                HistShift (hList4 [i], -shift - 0.05);
+            }
         }
     }
 
@@ -2852,6 +2855,21 @@ void CFlowReconstructor::GetFlow () {
 }
 void CFlowReconstructor::WritePreviousResults (TDirectory *dir) { // put here anything you like
     dir -> cd ();
+
+    // NA49 40 AGeV
+    static const Int_t nCentClasses1 = 6, nCentClasses2 = 5;
+    Float_t cent1 [nCentClasses1] = {8.3, 25.0, 41.7, 58.3, 75.0, 91.7};
+    Float_t R1 [nCentClasses1] = {0.20, 0.20, 0.26, 0.29, 0.33, 0.34};
+    Float_t cent2 [nCentClasses2] = {25.0, 41.7, 58.3, 75.0, 91.7};
+    Float_t R2 [nCentClasses2] = {0.13, 0.25, 0.31, 0.25, 0.21};
+
+    // NA49 40 AGeV pion
+    Float_t V1 [nCentClasses1] = {-0.006231, -0.008133, -0.010975, -0.016791, -0.024781, -0.034510};
+    Float_t V1err [nCentClasses1] = {0.001631, 0.001485, 0.001072, 0.001188, 0.001313, 0.001373};
+    Float_t V2 [nCentClasses2] = {0.002784, 0.023870, 0.027499, 0.035467, 0.038631};
+    Float_t V2err [nCentClasses2] = {0.006398, 0.002271, 0.002297, 0.003537, 0.004550};
+
+
 //    // NA49 40 AGeV 0-20%
 //    static const Int_t nyN = 9;
 //    double y1N [nyN] = {0.090000, 0.290000, 0.490000, 0.690000, 0.890000, 1.090000, 1.290000, 1.490000, 1.690000};
@@ -2946,6 +2964,11 @@ void CFlowReconstructor::WritePreviousResults (TDirectory *dir) { // put here an
         vey2Nrefl [j + nyN] = vey2N [j];
     }
 
+    TGraphErrors *gR1Cent = new TGraphErrors (nCentClasses1, cent1, R1, 0, 0);
+    TGraphErrors *gR2Cent = new TGraphErrors (nCentClasses2, cent1, R2, 0, 0);
+    TGraphErrors *gV1Cent = new TGraphErrors (nCentClasses1, cent2, V1, 0, V1err);
+    TGraphErrors *gV2Cent = new TGraphErrors (nCentClasses2, cent2, V2, 0, V2err);
+
     TGraphErrors *gV1yN = new TGraphErrors (9, y1N, vy1N, 0, vey1N);
     TGraphErrors *gV1yNrefl = new TGraphErrors (18, y1Nrefl, vy1Nrefl, 0, vey1Nrefl);
     TGraphErrors *gV1yS = new TGraphErrors (10, y1S, vy1S, 0, vey1S);
@@ -2955,31 +2978,40 @@ void CFlowReconstructor::WritePreviousResults (TDirectory *dir) { // put here an
     TGraphErrors *gV2PtN = new TGraphErrors (13, pt2N, vpt2N, 0, vept2N);
     TGraphErrors *gV2PtS = new TGraphErrors (nPtS, pt2S, vpt2S, 0, vept2S);
 
-    TGraphErrors *graphList [8];
+    TGraphErrors *gListN [10], *gListS [2];
 
-    graphList [0] = gV1yN;
-    graphList [1] = gV1PtN;
-    graphList [2] = gV2yN;
-    graphList [3] = gV2PtN;
-    graphList [4] = gV1yNrefl;
-    graphList [5] = gV2yNrefl;
-    graphList [6] = gV1yS;
-    graphList [7] = gV2PtS;
+    gListN [0] = gR1Cent;
+    gListN [1] = gR2Cent;
+    gListN [2] = gV1Cent;
+    gListN [3] = gV2Cent;
+    gListN [4] = gV1yN;
+    gListN [5] = gV1PtN;
+    gListN [6] = gV2yN;
+    gListN [7] = gV2PtN;
+    gListN [8] = gV1yNrefl;
+    gListN [9] = gV2yNrefl;
 
-    for (Int_t j = 0; j < 6; j++) {
-        graphList [j] -> SetMarkerStyle (28);
-        graphList [j] -> SetMarkerSize (1.5);
-        graphList [j] -> SetMarkerColor (4);
-        graphList [j] -> SetLineColor (4);
+    gListS [0] = gV1yS;
+    gListS [1] = gV2PtS;
+
+    for (Int_t j = 0; j < 10; j++) {
+        gListN [j] -> SetMarkerStyle (28);
+        gListN [j] -> SetMarkerSize (1.5);
+        gListN [j] -> SetMarkerColor (4);
+        gListN [j] -> SetLineColor (4);
     }
 
-    for (Int_t j = 6; j < 8; j++) {
-        graphList [j] -> SetMarkerStyle (30);
-        graphList [j] -> SetMarkerSize (1.5);
-        graphList [j] -> SetMarkerColor (1);
-        graphList [j] -> SetLineColor (1);
+    for (Int_t j = 0; j < 2; j++) {
+        gListS [j] -> SetMarkerStyle (30);
+        gListS [j] -> SetMarkerSize (1.5);
+        gListS [j] -> SetMarkerColor (1);
+        gListS [j] -> SetLineColor (1);
     }
 
+    gR1Cent -> Write ("gR1Cent");
+    gR2Cent -> Write ("gR2Cent");
+    gV1Cent -> Write ("gV1Cent");
+    gV2Cent -> Write ("gV2Cent");
     gV1PtN -> Write ("gV1PtN");
     gV1yN -> Write ("gV1yN");
     gV1yNrefl -> Write ("gV1yNrefl");
@@ -2998,7 +3030,11 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
     TFile *flowFile = new TFile (histFileName_ + "_flow.root", option [step]);
     if (step == 0) WritePreviousResults (flowFile); // for comparison with existing data
     TDirectory *stepDir = flowFile -> mkdir (dirName [step]);
-    TDirectory *distrDir = stepDir -> mkdir ("Distributions");
+    TDirectory *corrDir = stepDir -> mkdir ("Correlations");
+    TDirectory *resDir = stepDir -> mkdir ("Resolution");
+    TDirectory *flowDir = stepDir -> mkdir ("Flow");
+    TDirectory *resDistrDir = resDir -> mkdir ("Distributions");
+    TDirectory *flowDistrDir = flowDir -> mkdir ("Distributions");
 
     if (mhRangeForFlowSet_ == 0) {
         mhLow_ = mhMin_;
@@ -3013,13 +3049,13 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
 	Float_t R, Rerr, cent, pt, eta, bsIndex, shift, sign;
 
 // test
-    Float_t QQ [3][2][2]; // [AB, AC, BC][x, y][x, y]
-	TFile *testFile = new TFile (histFileName_ + "QQ.root", "RECREATE");
-    TTree *testTree = new TTree ("testTree", "Test tree");
-	testTree -> Branch ("QQ", &QQ, "QQ[3][2][2]/F");
-	testTree -> Branch ("Nsub", &nBinsBS_, 32000, 4);
-	testTree -> Branch ("Cent", &cent, 32000, 4);
-	testTree -> Branch ("Harm", &n, 32000, 4);
+//    Float_t QQ [3][2][2]; // [AB, AC, BC][x, y][x, y]
+//	TFile *testFile = new TFile (histFileName_ + "QQ.root", "RECREATE");
+//    TTree *testTree = new TTree ("testTree", "Test tree");
+//	testTree -> Branch ("QQ", &QQ, "QQ[3][2][2]/F");
+//	testTree -> Branch ("Nsub", &nBinsBS_, 32000, 4);
+//	testTree -> Branch ("Cent", &cent, 32000, 4);
+//	testTree -> Branch ("Harm", &n, 32000, 4);
 // test
 
     TH1 *hList1 [12], *hList2 [12], *hList3 [12], *hList4 [12];
@@ -3808,8 +3844,7 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             cout << "mhBins: " << mhLowerBin_ << " to " << mhHigherBin_ << endl;
             cout << "centBins: " << centLowerBin_ << " to " << centHigherBin_ << endl;
 
-			stepDir -> cd ();
-
+			corrDir -> cd ();
 
 			pqQaCent_SP.push_back (new TProfile (Form ("pq%iQ%iaCent_SP", n, n), Form ("#LTq_{%i}Q_{%i}^{a}#GT (SP);cent;sample", n, n), nBinsCent_, centMin_, centMax_));
 			pqQbCent_SP.push_back (new TProfile (Form ("pq%iQ%ibCent_SP", n, n), Form ("#LTq_{%i}Q_{%i}^{b}#GT (SP);cent;sample", n, n), nBinsCent_, centMin_, centMax_));
@@ -3987,6 +4022,8 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
 			pYaXcMultBS_EP.push_back (new TProfile (Form ("pY%iaX%icMultBS_EP", n, n), Form ("#LTY_{%i}^{a}X_{%i}^{c}#GT (EP, sampling);mult", n, n), nBinsMh_, mhMin_, mhMax_));
 			pYbXcMultBS_EP.push_back (new TProfile (Form ("pY%ibX%icMultBS_EP", n, n), Form ("#LTY_{%i}^{b}X_{%i}^{c}#GT (EP, sampling);mult", n, n), nBinsMh_, mhMin_, mhMax_));
 
+			resDir -> cd ();
+
 			h2RxaCent_SP.push_back (new TH2F (Form ("h2R%ixaCent_SP", n), Form ("R_{%i, a}^{x, SP};cent;sample", n), nBinsCent_, centMin_, centMax_, nBinsBS_, 0, nBinsBS_));
 			h2RxbCent_SP.push_back (new TH2F (Form ("h2R%ixbCent_SP", n), Form ("R_{%i, b}^{x, SP};cent;sample", n), nBinsCent_, centMin_, centMax_, nBinsBS_, 0, nBinsBS_));
 			h2RxcCent_SP.push_back (new TH2F (Form ("h2R%ixcCent_SP", n), Form ("R_{%i, c}^{x, SP};cent;sample", n), nBinsCent_, centMin_, centMax_, nBinsBS_, 0, nBinsBS_));
@@ -4100,6 +4137,8 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             hRaMultBS_EP.push_back (new TH1F (Form ("hR%iaMultBS_EP", n), Form ("R_{%i, a}^{x+y,EP}(sampling);mult", n), nBinsMh_, mhMin_, mhMax_));
 			hRbMultBS_EP.push_back (new TH1F (Form ("hR%ibMultBS_EP", n), Form ("R_{%i, b}^{x+y,EP}(sampling);mult", n), nBinsMh_, mhMin_, mhMax_));
 			hRcMultBS_EP.push_back (new TH1F (Form ("hR%icMultBS_EP", n), Form ("R_{%i, c}^{x+y,EP}(sampling);mult", n), nBinsMh_, mhMin_, mhMax_));
+
+			flowDir -> cd ();
 
             p2VxaCent_SP.push_back (new TProfile2D (Form ("p2V%ixaCent_SP", n), Form ("V_{%i, a}^{x, SP};cent;sample", n), nBinsCent_, centMin_, centMax_, nBinsBS_, 0, nBinsBS_));
             p2VxbCent_SP.push_back (new TProfile2D (Form ("p2V%ixbCent_SP", n), Form ("V_{%i, b}^{x, SP};cent;sample", n), nBinsCent_, centMin_, centMax_, nBinsBS_, 0, nBinsBS_));
@@ -5184,43 +5223,43 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             CalculateResolutionWithSampling (p2YaYbCent_EP [i], p2YaYcCent_EP [i], p2YbYcCent_EP [i], h2RyaCent_EP [i], h2RybCent_EP [i], h2RycCent_EP [i]);
             CalculateResolutionWithSampling (p2QaQbCent_EP [i], p2QaQcCent_EP [i], p2QbQcCent_EP [i], h2RaCent_EP [i], h2RbCent_EP [i], h2RcCent_EP [i]);
 
-            TH2toTH1withSampling (h2RxaCent_SP [i], hRxaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RxbCent_SP [i], hRxbCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RxcCent_SP [i], hRxcCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RyaCent_SP [i], hRyaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RybCent_SP [i], hRybCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RycCent_SP [i], hRycCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RaCent_SP [i], hRaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RbCent_SP [i], hRbCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RcCent_SP [i], hRcCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RxaCent_EP [i], hRxaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RxbCent_EP [i], hRxbCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RxcCent_EP [i], hRxcCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RyaCent_EP [i], hRyaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RybCent_EP [i], hRybCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RycCent_EP [i], hRycCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RaCent_EP [i], hRaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RbCent_EP [i], hRbCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RcCent_EP [i], hRcCentBS_EP [i], distrDir);
+            TH2toTH1withSampling (h2RxaCent_SP [i], hRxaCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxbCent_SP [i], hRxbCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxcCent_SP [i], hRxcCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RyaCent_SP [i], hRyaCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RybCent_SP [i], hRybCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RycCent_SP [i], hRycCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RaCent_SP [i], hRaCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RbCent_SP [i], hRbCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RcCent_SP [i], hRcCentBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxaCent_EP [i], hRxaCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxbCent_EP [i], hRxbCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxcCent_EP [i], hRxcCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RyaCent_EP [i], hRyaCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RybCent_EP [i], hRybCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RycCent_EP [i], hRycCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RaCent_EP [i], hRaCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RbCent_EP [i], hRbCentBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RcCent_EP [i], hRcCentBS_EP [i], resDistrDir);
 
-            TH2toTH1withSampling (h2RxaMult_SP [i], hRxaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RxbMult_SP [i], hRxbMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RxcMult_SP [i], hRxcMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RyaMult_SP [i], hRyaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RybMult_SP [i], hRybMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RycMult_SP [i], hRycMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RaMult_SP [i], hRaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RbMult_SP [i], hRbMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RcMult_SP [i], hRcMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (h2RxaMult_EP [i], hRxaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RxbMult_EP [i], hRxbMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RxcMult_EP [i], hRxcMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RyaMult_EP [i], hRyaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RybMult_EP [i], hRybMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RycMult_EP [i], hRycMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RaMult_EP [i], hRaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RbMult_EP [i], hRbMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (h2RcMult_EP [i], hRcMultBS_EP [i], distrDir);
+            TH2toTH1withSampling (h2RxaMult_SP [i], hRxaMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxbMult_SP [i], hRxbMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxcMult_SP [i], hRxcMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RyaMult_SP [i], hRyaMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RybMult_SP [i], hRybMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RycMult_SP [i], hRycMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RaMult_SP [i], hRaMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RbMult_SP [i], hRbMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RcMult_SP [i], hRcMultBS_SP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxaMult_EP [i], hRxaMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxbMult_EP [i], hRxbMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RxcMult_EP [i], hRxcMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RyaMult_EP [i], hRyaMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RybMult_EP [i], hRybMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RycMult_EP [i], hRycMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RaMult_EP [i], hRaMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RbMult_EP [i], hRbMultBS_EP [i], resDistrDir);
+            TH2toTH1withSampling (h2RcMult_EP [i], hRcMultBS_EP [i], resDistrDir);
 
             Sqrt (hRxaCent_SP [i]);
             Sqrt (hRxbCent_SP [i]);
@@ -5798,233 +5837,233 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             CombineSubevents (p2VxaEtaMult_EP [i], p2VxbEtaMult_EP [i], p2VxcEtaMult_EP [i], p2VxEtaMult_EP [i]);
             CombineSubevents (p2VyaEtaMult_EP [i], p2VybEtaMult_EP [i], p2VycEtaMult_EP [i], p2VyEtaMult_EP [i]);
 
-            TH2toTH1withSampling (p2VxaCent_SP [i], hVxaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxbCent_SP [i], hVxbCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxcCent_SP [i], hVxcCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyaCent_SP [i], hVyaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VybCent_SP [i], hVybCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VycCent_SP [i], hVycCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VaCent_SP [i], hVaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VbCent_SP [i], hVbCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VcCent_SP [i], hVcCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VCent_SP [i], hVCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxCent_SP [i], hVxCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyCent_SP [i], hVyCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaCent_SP [i], hVxYaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbCent_SP [i], hVxYbCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcCent_SP [i], hVxYcCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaCent_SP [i], hVyXaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbCent_SP [i], hVyXbCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcCent_SP [i], hVyXcCentBS_SP [i], distrDir);
+            TH2toTH1withSampling (p2VxaCent_SP [i], hVxaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbCent_SP [i], hVxbCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcCent_SP [i], hVxcCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaCent_SP [i], hVyaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybCent_SP [i], hVybCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycCent_SP [i], hVycCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaCent_SP [i], hVaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbCent_SP [i], hVbCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcCent_SP [i], hVcCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VCent_SP [i], hVCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxCent_SP [i], hVxCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyCent_SP [i], hVyCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaCent_SP [i], hVxYaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbCent_SP [i], hVxYbCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcCent_SP [i], hVxYcCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaCent_SP [i], hVyXaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbCent_SP [i], hVyXbCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcCent_SP [i], hVyXcCentBS_SP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaCent_EP [i], hVxaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxbCent_EP [i], hVxbCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxcCent_EP [i], hVxcCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyaCent_EP [i], hVyaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VybCent_EP [i], hVybCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VycCent_EP [i], hVycCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VaCent_EP [i], hVaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VbCent_EP [i], hVbCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VcCent_EP [i], hVcCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VCent_EP [i], hVCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxCent_EP [i], hVxCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyCent_EP [i], hVyCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaCent_EP [i], hVxYaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbCent_EP [i], hVxYbCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcCent_EP [i], hVxYcCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaCent_EP [i], hVyXaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbCent_EP [i], hVyXbCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcCent_EP [i], hVyXcCentBS_EP [i], distrDir);
+            TH2toTH1withSampling (p2VxaCent_EP [i], hVxaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbCent_EP [i], hVxbCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcCent_EP [i], hVxcCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaCent_EP [i], hVyaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybCent_EP [i], hVybCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycCent_EP [i], hVycCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaCent_EP [i], hVaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbCent_EP [i], hVbCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcCent_EP [i], hVcCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VCent_EP [i], hVCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxCent_EP [i], hVxCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyCent_EP [i], hVyCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaCent_EP [i], hVxYaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbCent_EP [i], hVxYbCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcCent_EP [i], hVxYcCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaCent_EP [i], hVyXaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbCent_EP [i], hVyXbCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcCent_EP [i], hVyXcCentBS_EP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaMult_SP [i], hVxaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxbMult_SP [i], hVxbMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxcMult_SP [i], hVxcMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyaMult_SP [i], hVyaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VybMult_SP [i], hVybMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VycMult_SP [i], hVycMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VaMult_SP [i], hVaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VbMult_SP [i], hVbMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VcMult_SP [i], hVcMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VMult_SP [i], hVMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxMult_SP [i], hVxMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyMult_SP [i], hVyMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaMult_SP [i], hVxYaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbMult_SP [i], hVxYbMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcMult_SP [i], hVxYcMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaMult_SP [i], hVyXaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbMult_SP [i], hVyXbMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcMult_SP [i], hVyXcMultBS_SP [i], distrDir);
+            TH2toTH1withSampling (p2VxaMult_SP [i], hVxaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbMult_SP [i], hVxbMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcMult_SP [i], hVxcMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaMult_SP [i], hVyaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybMult_SP [i], hVybMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycMult_SP [i], hVycMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaMult_SP [i], hVaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbMult_SP [i], hVbMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcMult_SP [i], hVcMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VMult_SP [i], hVMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxMult_SP [i], hVxMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyMult_SP [i], hVyMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaMult_SP [i], hVxYaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbMult_SP [i], hVxYbMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcMult_SP [i], hVxYcMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaMult_SP [i], hVyXaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbMult_SP [i], hVyXbMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcMult_SP [i], hVyXcMultBS_SP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaMult_EP [i], hVxaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxbMult_EP [i], hVxbMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxcMult_EP [i], hVxcMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyaMult_EP [i], hVyaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VybMult_EP [i], hVybMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VycMult_EP [i], hVycMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VaMult_EP [i], hVaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VbMult_EP [i], hVbMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VcMult_EP [i], hVcMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VMult_EP [i], hVMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxMult_EP [i], hVxMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyMult_EP [i], hVyMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaMult_EP [i], hVxYaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbMult_EP [i], hVxYbMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcMult_EP [i], hVxYcMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaMult_EP [i], hVyXaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbMult_EP [i], hVyXbMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcMult_EP [i], hVyXcMultBS_EP [i], distrDir);
+            TH2toTH1withSampling (p2VxaMult_EP [i], hVxaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbMult_EP [i], hVxbMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcMult_EP [i], hVxcMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaMult_EP [i], hVyaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybMult_EP [i], hVybMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycMult_EP [i], hVycMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaMult_EP [i], hVaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbMult_EP [i], hVbMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcMult_EP [i], hVcMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VMult_EP [i], hVMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxMult_EP [i], hVxMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyMult_EP [i], hVyMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaMult_EP [i], hVxYaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbMult_EP [i], hVxYbMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcMult_EP [i], hVxYcMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaMult_EP [i], hVyXaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbMult_EP [i], hVyXbMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcMult_EP [i], hVyXcMultBS_EP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaPtCent_SP [i], hVxaPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxbPtCent_SP [i], hVxbPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxcPtCent_SP [i], hVxcPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyaPtCent_SP [i], hVyaPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VybPtCent_SP [i], hVybPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VycPtCent_SP [i], hVycPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VaPtCent_SP [i], hVaPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VbPtCent_SP [i], hVbPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VcPtCent_SP [i], hVcPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VPtCent_SP [i], hVPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxPtCent_SP [i], hVxPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyPtCent_SP [i], hVyPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaPtCent_SP [i], hVxYaPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbPtCent_SP [i], hVxYbPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcPtCent_SP [i], hVxYcPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaPtCent_SP [i], hVyXaPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbPtCent_SP [i], hVyXbPtCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcPtCent_SP [i], hVyXcPtCentBS_SP [i], distrDir);
+            TH2toTH1withSampling (p2VxaPtCent_SP [i], hVxaPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbPtCent_SP [i], hVxbPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcPtCent_SP [i], hVxcPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaPtCent_SP [i], hVyaPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybPtCent_SP [i], hVybPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycPtCent_SP [i], hVycPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaPtCent_SP [i], hVaPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbPtCent_SP [i], hVbPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcPtCent_SP [i], hVcPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VPtCent_SP [i], hVPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxPtCent_SP [i], hVxPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyPtCent_SP [i], hVyPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaPtCent_SP [i], hVxYaPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbPtCent_SP [i], hVxYbPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcPtCent_SP [i], hVxYcPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaPtCent_SP [i], hVyXaPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbPtCent_SP [i], hVyXbPtCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcPtCent_SP [i], hVyXcPtCentBS_SP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaPtCent_EP [i], hVxaPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxbPtCent_EP [i], hVxbPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxcPtCent_EP [i], hVxcPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyaPtCent_EP [i], hVyaPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VybPtCent_EP [i], hVybPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VycPtCent_EP [i], hVycPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VaPtCent_EP [i], hVaPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VbPtCent_EP [i], hVbPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VcPtCent_EP [i], hVcPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VPtCent_EP [i], hVPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxPtCent_EP [i], hVxPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyPtCent_EP [i], hVyPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaPtCent_EP [i], hVxYaPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbPtCent_EP [i], hVxYbPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcPtCent_EP [i], hVxYcPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaPtCent_EP [i], hVyXaPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbPtCent_EP [i], hVyXbPtCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcPtCent_EP [i], hVyXcPtCentBS_EP [i], distrDir);
+            TH2toTH1withSampling (p2VxaPtCent_EP [i], hVxaPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbPtCent_EP [i], hVxbPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcPtCent_EP [i], hVxcPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaPtCent_EP [i], hVyaPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybPtCent_EP [i], hVybPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycPtCent_EP [i], hVycPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaPtCent_EP [i], hVaPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbPtCent_EP [i], hVbPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcPtCent_EP [i], hVcPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VPtCent_EP [i], hVPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxPtCent_EP [i], hVxPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyPtCent_EP [i], hVyPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaPtCent_EP [i], hVxYaPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbPtCent_EP [i], hVxYbPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcPtCent_EP [i], hVxYcPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaPtCent_EP [i], hVyXaPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbPtCent_EP [i], hVyXbPtCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcPtCent_EP [i], hVyXcPtCentBS_EP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaEtaCent_SP [i], hVxaEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxbEtaCent_SP [i], hVxbEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxcEtaCent_SP [i], hVxcEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyaEtaCent_SP [i], hVyaEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VybEtaCent_SP [i], hVybEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VycEtaCent_SP [i], hVycEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VaEtaCent_SP [i], hVaEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VbEtaCent_SP [i], hVbEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VcEtaCent_SP [i], hVcEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VEtaCent_SP [i], hVEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxEtaCent_SP [i], hVxEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyEtaCent_SP [i], hVyEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaEtaCent_SP [i], hVxYaEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbEtaCent_SP [i], hVxYbEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcEtaCent_SP [i], hVxYcEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaEtaCent_SP [i], hVyXaEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbEtaCent_SP [i], hVyXbEtaCentBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcEtaCent_SP [i], hVyXcEtaCentBS_SP [i], distrDir);
+            TH2toTH1withSampling (p2VxaEtaCent_SP [i], hVxaEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbEtaCent_SP [i], hVxbEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcEtaCent_SP [i], hVxcEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaEtaCent_SP [i], hVyaEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybEtaCent_SP [i], hVybEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycEtaCent_SP [i], hVycEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaEtaCent_SP [i], hVaEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbEtaCent_SP [i], hVbEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcEtaCent_SP [i], hVcEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VEtaCent_SP [i], hVEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxEtaCent_SP [i], hVxEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyEtaCent_SP [i], hVyEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaEtaCent_SP [i], hVxYaEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbEtaCent_SP [i], hVxYbEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcEtaCent_SP [i], hVxYcEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaEtaCent_SP [i], hVyXaEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbEtaCent_SP [i], hVyXbEtaCentBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcEtaCent_SP [i], hVyXcEtaCentBS_SP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaEtaCent_EP [i], hVxaEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxbEtaCent_EP [i], hVxbEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxcEtaCent_EP [i], hVxcEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyaEtaCent_EP [i], hVyaEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VybEtaCent_EP [i], hVybEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VycEtaCent_EP [i], hVycEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VaEtaCent_EP [i], hVaEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VbEtaCent_EP [i], hVbEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VcEtaCent_EP [i], hVcEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VEtaCent_EP [i], hVEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxEtaCent_EP [i], hVxEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyEtaCent_EP [i], hVyEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaEtaCent_EP [i], hVxYaEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbEtaCent_EP [i], hVxYbEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcEtaCent_EP [i], hVxYcEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaEtaCent_EP [i], hVyXaEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbEtaCent_EP [i], hVyXbEtaCentBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcEtaCent_EP [i], hVyXcEtaCentBS_EP [i], distrDir);
+            TH2toTH1withSampling (p2VxaEtaCent_EP [i], hVxaEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbEtaCent_EP [i], hVxbEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcEtaCent_EP [i], hVxcEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaEtaCent_EP [i], hVyaEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybEtaCent_EP [i], hVybEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycEtaCent_EP [i], hVycEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaEtaCent_EP [i], hVaEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbEtaCent_EP [i], hVbEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcEtaCent_EP [i], hVcEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VEtaCent_EP [i], hVEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxEtaCent_EP [i], hVxEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyEtaCent_EP [i], hVyEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaEtaCent_EP [i], hVxYaEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbEtaCent_EP [i], hVxYbEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcEtaCent_EP [i], hVxYcEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaEtaCent_EP [i], hVyXaEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbEtaCent_EP [i], hVyXbEtaCentBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcEtaCent_EP [i], hVyXcEtaCentBS_EP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaPtMult_SP [i], hVxaPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxbPtMult_SP [i], hVxbPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxcPtMult_SP [i], hVxcPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyaPtMult_SP [i], hVyaPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VybPtMult_SP [i], hVybPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VycPtMult_SP [i], hVycPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VaPtMult_SP [i], hVaPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VbPtMult_SP [i], hVbPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VcPtMult_SP [i], hVcPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VPtMult_SP [i], hVPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxPtMult_SP [i], hVxPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyPtMult_SP [i], hVyPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaPtMult_SP [i], hVxYaPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbPtMult_SP [i], hVxYbPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcPtMult_SP [i], hVxYcPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaPtMult_SP [i], hVyXaPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbPtMult_SP [i], hVyXbPtMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcPtMult_SP [i], hVyXcPtMultBS_SP [i], distrDir);
+            TH2toTH1withSampling (p2VxaPtMult_SP [i], hVxaPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbPtMult_SP [i], hVxbPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcPtMult_SP [i], hVxcPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaPtMult_SP [i], hVyaPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybPtMult_SP [i], hVybPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycPtMult_SP [i], hVycPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaPtMult_SP [i], hVaPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbPtMult_SP [i], hVbPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcPtMult_SP [i], hVcPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VPtMult_SP [i], hVPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxPtMult_SP [i], hVxPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyPtMult_SP [i], hVyPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaPtMult_SP [i], hVxYaPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbPtMult_SP [i], hVxYbPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcPtMult_SP [i], hVxYcPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaPtMult_SP [i], hVyXaPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbPtMult_SP [i], hVyXbPtMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcPtMult_SP [i], hVyXcPtMultBS_SP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaPtMult_EP [i], hVxaPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxbPtMult_EP [i], hVxbPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxcPtMult_EP [i], hVxcPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyaPtMult_EP [i], hVyaPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VybPtMult_EP [i], hVybPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VycPtMult_EP [i], hVycPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VaPtMult_EP [i], hVaPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VbPtMult_EP [i], hVbPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VcPtMult_EP [i], hVcPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VPtMult_EP [i], hVPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxPtMult_EP [i], hVxPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyPtMult_EP [i], hVyPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaPtMult_EP [i], hVxYaPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbPtMult_EP [i], hVxYbPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcPtMult_EP [i], hVxYcPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaPtMult_EP [i], hVyXaPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbPtMult_EP [i], hVyXbPtMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcPtMult_EP [i], hVyXcPtMultBS_EP [i], distrDir);
+            TH2toTH1withSampling (p2VxaPtMult_EP [i], hVxaPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbPtMult_EP [i], hVxbPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcPtMult_EP [i], hVxcPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaPtMult_EP [i], hVyaPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybPtMult_EP [i], hVybPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycPtMult_EP [i], hVycPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaPtMult_EP [i], hVaPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbPtMult_EP [i], hVbPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcPtMult_EP [i], hVcPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VPtMult_EP [i], hVPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxPtMult_EP [i], hVxPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyPtMult_EP [i], hVyPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaPtMult_EP [i], hVxYaPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbPtMult_EP [i], hVxYbPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcPtMult_EP [i], hVxYcPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaPtMult_EP [i], hVyXaPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbPtMult_EP [i], hVyXbPtMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcPtMult_EP [i], hVyXcPtMultBS_EP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaEtaMult_SP [i], hVxaEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxbEtaMult_SP [i], hVxbEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxcEtaMult_SP [i], hVxcEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyaEtaMult_SP [i], hVyaEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VybEtaMult_SP [i], hVybEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VycEtaMult_SP [i], hVycEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VaEtaMult_SP [i], hVaEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VbEtaMult_SP [i], hVbEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VcEtaMult_SP [i], hVcEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VEtaMult_SP [i], hVEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxEtaMult_SP [i], hVxEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyEtaMult_SP [i], hVyEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaEtaMult_SP [i], hVxYaEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbEtaMult_SP [i], hVxYbEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcEtaMult_SP [i], hVxYcEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaEtaMult_SP [i], hVyXaEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbEtaMult_SP [i], hVyXbEtaMultBS_SP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcEtaMult_SP [i], hVyXcEtaMultBS_SP [i], distrDir);
+            TH2toTH1withSampling (p2VxaEtaMult_SP [i], hVxaEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbEtaMult_SP [i], hVxbEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcEtaMult_SP [i], hVxcEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaEtaMult_SP [i], hVyaEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybEtaMult_SP [i], hVybEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycEtaMult_SP [i], hVycEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaEtaMult_SP [i], hVaEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbEtaMult_SP [i], hVbEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcEtaMult_SP [i], hVcEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VEtaMult_SP [i], hVEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxEtaMult_SP [i], hVxEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyEtaMult_SP [i], hVyEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaEtaMult_SP [i], hVxYaEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbEtaMult_SP [i], hVxYbEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcEtaMult_SP [i], hVxYcEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaEtaMult_SP [i], hVyXaEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbEtaMult_SP [i], hVyXbEtaMultBS_SP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcEtaMult_SP [i], hVyXcEtaMultBS_SP [i], flowDistrDir);
 
-            TH2toTH1withSampling (p2VxaEtaMult_EP [i], hVxaEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxbEtaMult_EP [i], hVxbEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxcEtaMult_EP [i], hVxcEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyaEtaMult_EP [i], hVyaEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VybEtaMult_EP [i], hVybEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VycEtaMult_EP [i], hVycEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VaEtaMult_EP [i], hVaEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VbEtaMult_EP [i], hVbEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VcEtaMult_EP [i], hVcEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VEtaMult_EP [i], hVEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxEtaMult_EP [i], hVxEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyEtaMult_EP [i], hVyEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYaEtaMult_EP [i], hVxYaEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYbEtaMult_EP [i], hVxYbEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VxYcEtaMult_EP [i], hVxYcEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXaEtaMult_EP [i], hVyXaEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXbEtaMult_EP [i], hVyXbEtaMultBS_EP [i], distrDir);
-            TH2toTH1withSampling (p2VyXcEtaMult_EP [i], hVyXcEtaMultBS_EP [i], distrDir);
+            TH2toTH1withSampling (p2VxaEtaMult_EP [i], hVxaEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxbEtaMult_EP [i], hVxbEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxcEtaMult_EP [i], hVxcEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyaEtaMult_EP [i], hVyaEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VybEtaMult_EP [i], hVybEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VycEtaMult_EP [i], hVycEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VaEtaMult_EP [i], hVaEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VbEtaMult_EP [i], hVbEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VcEtaMult_EP [i], hVcEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VEtaMult_EP [i], hVEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxEtaMult_EP [i], hVxEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyEtaMult_EP [i], hVyEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYaEtaMult_EP [i], hVxYaEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYbEtaMult_EP [i], hVxYbEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VxYcEtaMult_EP [i], hVxYcEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXaEtaMult_EP [i], hVyXaEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXbEtaMult_EP [i], hVyXbEtaMultBS_EP [i], flowDistrDir);
+            TH2toTH1withSampling (p2VyXcEtaMult_EP [i], hVyXcEtaMultBS_EP [i], flowDistrDir);
 
             // reflected rapidity bins
             ReflectRapidity (hVxaEtaCent_SP [i], hVxaEtaReflCent_SP [i], n);
@@ -6190,6 +6229,8 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
 
             // PLOT CORRELATIONS AND RESOLUTION//
 
+            resDir -> cd ();
+
             hList1 [0] = pXaXbCent_SP [i];
             hList1 [1] = pYaYbCent_SP [i];
             hList1 [2] = pXaYbCent_SP [i];
@@ -6236,7 +6277,7 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             hList4 [7] = hRycCentBS_SP [i];
             hList4 [8] = hRcCentBS_SP [i];
 
-            PlotResolution (hList1, hList2, hList3, hList4, nProfs, stepDir);
+            PlotResolution (hList1, hList2, hList3, hList4, nProfs);
 
             hList1 [0] = pXaXbCent_EP [i];
             hList1 [1] = pYaYbCent_EP [i];
@@ -6284,7 +6325,9 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             hList4 [7] = hRycCentBS_EP [i];
             hList4 [8] = hRcCentBS_EP [i];
 
-            PlotResolution (hList1, hList2, hList3, hList4, nProfs, stepDir);
+            PlotResolution (hList1, hList2, hList3, hList4, nProfs);
+
+            flowDir -> cd ();
 
             hList1 [0] = hVxCent_SP [i];
             hList1 [1] = hVxaCent_SP [i];
@@ -7583,11 +7626,15 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             PlotFlow (hList1, hList2, hList3, hList4); // VcEtaMult_EP
 
         }
-        stepDir -> Write ();
 
-    testFile -> cd (); // test
-    testTree -> Write (); // test
-    testFile -> Close (); // test
+        stepDir -> Write ();
+        corrDir -> Write ();
+        resDir -> Write ();
+        flowDir -> Write ();
+
+//    testFile -> cd (); // test
+//    testTree -> Write (); // test
+//    testFile -> Close (); // test
 	corrFile -> Close ();
 	flowFile -> Close ();
 }

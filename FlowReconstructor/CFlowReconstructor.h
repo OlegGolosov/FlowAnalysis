@@ -166,7 +166,7 @@ private:
 	void TH2toTH1withSampling (TH2 *h2In, TH1 *hOut, TDirectory *dir = 0);
 	void ReflectRapidity (TH1F *hVEta, TH1F *hVEtaRefl, Int_t nHarmonic);
 	void PlotKinematics (TFile *corrFile, TDirectory *outputDir, Int_t nHarmonic, Int_t step);
-	void PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1 *hList3 [9], TH1 *hList4 [9], Int_t nHist, TDirectory *dir);
+	void PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1 *hList3 [9], TH1 *hList4 [9], Int_t nHist);
 	void CombineSubevents (TH2 *pa, TH2 *pb, TH2 *pc, TH2 *p);
 	void CombineSubevents (TH1 *ha, TH1 *hb, TH1 *hc, TH1 *h);
 	void PlotFlow (TH1 *hList1 [5], TH1 *hList2 [5], TH1 *hList3 [5] = 0, TH1 *hList4 [5] = 0);
