@@ -2418,9 +2418,20 @@ void CFlowReconstructor::CalculateResolutionNoSampling (TProfile *pXaXb, TProfil
         Acc::CheckHistogram(hRc);
     }
     if (resMethod_ == kRandomSubevent) {
-        hRa = (TH1F*) (pXaXb);
+        Int_t nBins = hRa -> GetNbinsX ();
+        Float_t R, Rerr;
+        for (Int_t i = 1; i <= nBins; i++) {
+            R = pXaXb -> GetBinContent (i);
+            Rerr = pXaXb -> GetBinError (i);
+            hRa -> SetBinContent (i, R);
+            hRa -> SetBinError (i, Rerr);
+            hRb -> SetBinContent (i, R);
+            hRb -> SetBinError (i, Rerr);
+        }
         hRa -> Scale (2.0);
-        hRa = hRb;
+        hRb -> Scale (2.0);
+        Acc::CheckHistogram(hRa);
+        Acc::CheckHistogram(hRb);
     }
 }
 
@@ -2614,13 +2625,16 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
     }
 
     Float_t shift;
+    Int_t iMax = 3;
+    if (resMethod_ == kRandomSubevent) iMax = 1;
     TCanvas *c;
     gStyle -> SetOptStat (0);
     gStyle -> SetLegendBorderSize (0);
     TString xAxisTitle = hList2 [0] -> GetXaxis () -> GetTitle ();
     THStack *hs, *hsa [4];
 
-    for (Int_t i = 0; i < 3; i++) { // plot three * four QQ combinations
+
+    for (Int_t i = 0; i < iMax; i++) { // plot three * four QQ combinations
         c = new TCanvas (Form ("cQ%i%cQ%i%c", nHarmonic, sub1 [i], nHarmonic, sub2 [i]) + eventClassVariable + "_" + method, Form ("cQ%i%cQ%i%c", nHarmonic, sub1 [i], nHarmonic, sub2 [i]) + eventClassVariable + "_" + method, 800, 600);
         hs = new THStack (Form ("hsQ%i%cQ%i%c", nHarmonic, sub1 [i], nHarmonic, sub2 [i]) + eventClassVariable + "_" + method, Form ("#LTQ_{%i}^{%c}Q_{%i}^{%c}#GT (", nHarmonic, sub1 [i], nHarmonic, sub2 [i]) + method + ");" + xAxisTitle);
 
@@ -2652,7 +2666,9 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
     }
 
     // plot resolution correction factors
-    for (Int_t i = 0; i < 3; i++) {
+    iMax = 3;
+    if (resMethod_ == kRandomSubevent) iMax = 2;
+    for (Int_t i = 0; i < iMax; i++) {
         c = new TCanvas (Form ("cR%i%c", nHarmonic, sub [i]) + eventClassVariable + "_" + method, Form ("cR%i%c", nHarmonic, sub [i]) + eventClassVariable + "_" + method, 800, 600);
         gStyle -> SetLegendBorderSize (0);
         hs = new THStack (Form ("R%i%c", nHarmonic, sub [i]) + eventClassVariable + "_" + method, Form ("R_{%i}^{%c,", nHarmonic, sub [i]) + method + "};" + xAxisTitle + ";" + Form ("R_{%i}^{%c,", nHarmonic, sub [i]) + method + "}");
@@ -2711,7 +2727,7 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
         }
         c -> cd (4);
         hsa [3] = new THStack (Form ("R%i%c", nHarmonic, q [i]) + eventClassVariable + "_" + method, Form ("R_{%i, x}^{", nHarmonic) + method + "};" + xAxisTitle + ";" + Form ("R_{%i, x}^{", nHarmonic) + method + "}");
-        for (Int_t j = 0; j < 3; j++) {
+        for (Int_t j = 0; j < iMax; j++) {
             k = j * 3 + i;
             hList3 [k] -> SetMarkerStyle (markerStyles1 [j]);
             hList3 [k] -> SetMarkerColor (markerColors [j]);
@@ -2740,12 +2756,18 @@ void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1
 
 void CFlowReconstructor::CombineSubevents (TH2 *pa, TH2 *pb, TH2 *pc, TH2 *p) {
     p -> Add (pa, pb);
-    p -> Add (pc);
+    if (resMethod_ == kThreeSubevents) p -> Add (pc);
 }
 
 void CFlowReconstructor::CombineSubevents (TH1 *ha, TH1 *hb, TH1 *hc, TH1 *h) {
-    h -> Add (ha, hb, 0.33, 0.33);
-    h -> Add (hc, 0.33);
+    if (resMethod_ == kThreeSubevents) {
+        h -> Add (ha, hb, 0.33, 0.33);
+        h -> Add (hc, 0.33);
+    }
+
+    if (resMethod_ == kRandomSubevent) {
+        h -> Add (ha, hb, 0.5, 0.5);
+    }
 }
 
 void CFlowReconstructor::PlotFlow (TH1 *hList1 [5], TH1 *hList2 [5], TH1 *hList3 [5], TH1 *hList4 [5]) {
@@ -2769,10 +2791,15 @@ void CFlowReconstructor::PlotFlow (TH1 *hList1 [5], TH1 *hList2 [5], TH1 *hList3
     gStyle -> SetOptStat (0);
     THStack *hs = new THStack ("hs" + histName, histTitle + ";" + xAxisTitle + ";" + yAxisTitle);
 
+    Int_t iMax = 5;
     Float_t shift;
 
-    for (Int_t i = 0; i < 5; i++) {
-        if (hList1 [i] == 0) break;
+    if (hList1 [4] == 0) {
+        if (resMethod_ == kThreeSubevents) iMax = 4;
+        else iMax = 3;
+    }
+
+    for (Int_t i = 0; i < iMax; i++) {
         shift = -0.2 + 0.1 * i; // -0.2 -0.1 0.0 0.1 0.2
         hList1 [i] -> SetMarkerStyle (markerStyles1 [i]);
         hList1 [i] -> SetMarkerColor (markerColors [i]);
