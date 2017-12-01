@@ -863,6 +863,8 @@ void CFlowReconstructor::FinalizeQnCorrectionsManager (TFile *qnInputFile, TFile
 
 
 void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
+    const Bool_t mhON = 0;
+
     TString option [4] = {"recreate", "update", "update", "update"};
 	TFile *inputFile = new TFile (nonUniformInputFileName + ".root", "READ");
 	if (uniformSet) inputFile = new TFile (uniformInputFileName + ".root", "READ");
@@ -872,7 +874,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 	inputTree -> SetBranchAddress ("Event", &event);
 	if (useAutoHistRanges_ == 1) GetVariableRanges (inputTree);
 	TFile *histFile = new TFile (histFileName_ + "_corr.root", option [step]);
-	if (samplingMethod_ == kBootStrapping) BuildSampleTree (inputTree);
+	if (samplingMethod_ == kBootStrapping && step == kNoCorrections) BuildSampleTree (inputTree);
 
 	TFile *qnInputFile = new TFile (histFileName_ + Form ("_%i.root", step), "read");
 	TFile *qnPtInputFile = new TFile (histFileName_ + Form ("Pt_%i.root", step), "read");
@@ -1077,20 +1079,20 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
         hNtracksBSb.push_back (new TH1F (Form ("hNtracksBSb%i", n), "Subsample distribution of Ntracks (subevent B);subsample;Ntracks", nBinsBS_, 0, nBinsBS_));
         hNtracksBSc.push_back (new TH1F (Form ("hNtracksBSc%i", n), "Subsample distribution of Ntracks (subevent C);subsample;Ntracks", nBinsBS_, 0, nBinsBS_));
 
-        h2mhCent.push_back (new TH2F (Form ("h2mhCent%i", n), "Ntracks vs centrality distribution;Ntracks;centrality;Nevents", 100, 0, mhMax_, (centMax_ - centMin_) * 100, centMin_, centMax_));
-        h2mhaCent.push_back (new TH2F (Form ("h2mhaCent%i", n), "Ntracks vs centrality distribution (subevent A);Ntracks;centrality;Nevents", 500, 0, mhMax_, (centMax_ - centMin_) * 100, centMin_, centMax_));
-        h2mhbCent.push_back (new TH2F (Form ("h2mhbCent%i", n), "Ntracks vs centrality distribution (subevent B);Ntracks;centrality;Nevents", 500, 0, mhMax_, (centMax_ - centMin_) * 100, centMin_, centMax_));
-        h2mhcCent.push_back (new TH2F (Form ("h2mhcCent%i", n), "Ntracks vs centrality distribution (subevent C);Ntracks;centrality;Nevents", 500, 0, mhMax_, (centMax_ - centMin_) * 100, centMin_, centMax_));
+        h2mhCent.push_back (new TH2F (Form ("h2mhCent%i", n), "Ntracks vs centrality distribution;centrality;Ntracks;Nevents", centMax_ - centMin_, centMin_, centMax_, 100, 0, mhMax_));
+        h2mhaCent.push_back (new TH2F (Form ("h2mhaCent%i", n), "Ntracks vs centrality distribution (subevent A);centrality;Ntracks;Nevents", centMax_ - centMin_, centMin_, centMax_, 100, 0, mhMax_));
+        h2mhbCent.push_back (new TH2F (Form ("h2mhbCent%i", n), "Ntracks vs centrality distribution (subevent B);centrality;Ntracks;Nevents", centMax_ - centMin_, centMin_, centMax_, 100, 0, mhMax_));
+        h2mhcCent.push_back (new TH2F (Form ("h2mhcCent%i", n), "Ntracks vs centrality distribution (subevent C);centrality;Ntracks;Nevents", centMax_ - centMin_, centMin_, centMax_, 100, 0, mhMax_));
 
-        h2mhMult.push_back (new TH2F (Form ("h2mhMult%i", n), "Ntracks vs multiplicity distribution;Ntracks;multiplicity;Nevents", 100, 0, mhMax_, 100, mhMin_, mhMax_));
-        h2mhaMult.push_back (new TH2F (Form ("h2mhaMult%i", n), "Ntracks vs multiplicity distribution (subevent A);Ntracks;multiplicity;Nevents", 500, 0, mhMax_, 100, mhMin_, mhMax_));
-        h2mhbMult.push_back (new TH2F (Form ("h2mhbMult%i", n), "Ntracks vs multiplicity distribution (subevent B);Ntracks;multiplicity;Nevents", 500, 0, mhMax_, 100, mhMin_, mhMax_));
-        h2mhcMult.push_back (new TH2F (Form ("h2mhcMult%i", n), "Ntracks vs multiplicity distribution (subevent C);Ntracks;multiplicity;Nevents", 500, 0, mhMax_, 100, mhMin_, mhMax_));
+        h2mhMult.push_back (new TH2F (Form ("h2mhMult%i", n), "Ntracks vs multiplicity distribution;multiplicity;Ntracks;Nevents", 100, 0, mhMax_, 100, mhMin_, mhMax_));
+        h2mhaMult.push_back (new TH2F (Form ("h2mhaMult%i", n), "Ntracks vs multiplicity distribution (subevent A);multiplicity;Ntracks;Nevents", 100, 0, mhMax_, 100, mhMin_, mhMax_));
+        h2mhbMult.push_back (new TH2F (Form ("h2mhbMult%i", n), "Ntracks vs multiplicity distribution (subevent B);multiplicity;Ntracks;Nevents", 100, 0, mhMax_, 100, mhMin_, mhMax_));
+        h2mhcMult.push_back (new TH2F (Form ("h2mhcMult%i", n), "Ntracks vs multiplicity distribution (subevent C);multiplicity;Ntracks;Nevents", 100, 0, mhMax_, 100, mhMin_, mhMax_));
 
-        h2PtEta.push_back (new TH2F (Form ("h2PtEta_%i", n), "P_{T} and " + varName_ + " distribution;P_{T}; " + varName_ + "; nTracks", 100, ptMin_, ptMax_, 100, etaMin_, etaMax_));
-        h2PtEtaA.push_back (new TH2F (Form ("h2PtEtaA_%i", n), "P_{T} and " + varName_ + " distribution (subevent A);P_{T}; " + varName_ + "; nTracks", 100, ptMin_, ptMax_, 100, etaMin_, etaMax_));
-        h2PtEtaB.push_back (new TH2F (Form ("h2PtEtaB_%i", n), "P_{T} and " + varName_ + " distribution (subevent B);P_{T}; " + varName_ + "; nTracks", 100, ptMin_, ptMax_, 100, etaMin_, etaMax_));
-        h2PtEtaC.push_back (new TH2F (Form ("h2PtEtaC_%i", n), "P_{T} and " + varName_ + " distribution (subevent C);P_{T}; " + varName_ + "; nTracks", 100, ptMin_, ptMax_, 100, etaMin_, etaMax_));
+        h2PtEta.push_back (new TH2F (Form ("h2PtEta_%i", n), "P_{T} and " + varName_ + " distribution;P_{T}; " + varName_ + "; nTracks", 100, etaMin_, etaMax_, 100, ptMin_, ptMax_));
+        h2PtEtaA.push_back (new TH2F (Form ("h2PtEtaA_%i", n), "P_{T} and " + varName_ + " distribution (subevent A);P_{T}; " + varName_ + "; nTracks", 100, etaMin_, etaMax_, 100, ptMin_, ptMax_));
+        h2PtEtaB.push_back (new TH2F (Form ("h2PtEtaB_%i", n), "P_{T} and " + varName_ + " distribution (subevent B);P_{T}; " + varName_ + "; nTracks", 100, etaMin_, etaMax_, 100, ptMin_, ptMax_));
+        h2PtEtaC.push_back (new TH2F (Form ("h2PtEtaC_%i", n), "P_{T} and " + varName_ + " distribution (subevent C);P_{T}; " + varName_ + "; nTracks", 100, etaMin_, etaMax_, 100, ptMin_, ptMax_));
 
         pPtEta.push_back (new TProfile (Form ("pPtEta_%i", n), "#LTP_{T}#GT versus " + varName_ + ";" + varName_ + ";#LTP_{T}#GT", 50, etaMin_, etaMax_));
         pPtEtaA.push_back (new TProfile (Form ("pPtEtaA_%i", n), "#LTP_{T}#GT versus " + varName_ + " (subevent A);" + varName_ + ";#LTP_{T}#GT", 50, etaMin_, etaMax_));
@@ -1607,7 +1609,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 			for (Int_t i = 0; i < nHarmonics; i++) {
                 n = harmonicsMap [i];
                 subeventFlag [i][itrack - 1] = 0;
-                h2PtEta [i] -> Fill (pt, eta);
+                h2PtEta [i] -> Fill (eta, pt);
                 pPtEta [i] -> Fill (eta, pt);
                 pPtCent [i] -> Fill (cent, pt, eta);
                 if (resChargeSet && charge * resCharge < 0) continue; // resolution from differently charged particles
@@ -1620,7 +1622,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             QnMan -> AddDataVector (kNDetectors * i + kDetector1A, phi, weight);
                             subeventFlag [i][itrack - 1] = 1;
                             mha [i] ++;
-                            h2PtEtaA [i] -> Fill (pt, eta);
+                            h2PtEtaA [i] -> Fill (eta, pt);
                             pPtEtaA [i] -> Fill (eta, pt);
                             pPtCentA [i] -> Fill (cent, pt, eta);
                             break;
@@ -1636,7 +1638,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             QnMan -> AddDataVector (kNDetectors * i + kDetector1B, phi, weight);
                             subeventFlag [i][itrack - 1] = 2;
                             mhb [i] ++;
-                            h2PtEtaB [i] -> Fill (pt, eta);
+                            h2PtEtaB [i] -> Fill (eta, pt);
                             pPtEtaB [i] -> Fill (eta, pt);
                             pPtCentB [i] -> Fill (cent, pt, eta);
                             break;
@@ -1652,7 +1654,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             QnMan -> AddDataVector (kNDetectors * i + kDetector1C, phi, weight);
                             subeventFlag [i][itrack - 1] = 3;
                             mhc [i] ++;
-                            h2PtEtaC [i] -> Fill (pt, eta);
+                            h2PtEtaC [i] -> Fill (eta, pt);
                             pPtEtaC [i] -> Fill (eta, pt);
                             pPtCentC [i] -> Fill (cent, pt, eta);
                             break;
@@ -1727,15 +1729,15 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 			hMhb [i] -> Fill (mhb [i]);
 			hMhc [i] -> Fill (mhc [i]);
 
-            h2mhCent [i] -> Fill (mh, cent);
-            h2mhaCent [i] -> Fill (mha [i], cent);
-            h2mhbCent [i] -> Fill (mhb [i], cent);
-            h2mhcCent [i] -> Fill (mhc [i], cent);
+            h2mhCent [i] -> Fill (cent, mh);
+            h2mhaCent [i] -> Fill (cent, mha [i]);
+            h2mhbCent [i] -> Fill (cent, mhb [i]);
+            h2mhcCent [i] -> Fill (cent, mhc [i]);
 
             h2mhMult [i] -> Fill (mh, mh);
-            h2mhaMult [i] -> Fill (mha [i], mh);
-            h2mhbMult [i] -> Fill (mhb [i], mh);
-            h2mhcMult [i] -> Fill (mhc [i], mh);
+            h2mhaMult [i] -> Fill (mh, mha [i]);
+            h2mhbMult [i] -> Fill (mh, mhb [i]);
+            h2mhcMult [i] -> Fill (mh, mhc [i]);
 
 			//psiEP [i] = TMath::ATan2 (Y [i], X [i]) / n;
 			psiEPa [i] = TMath::ATan2 (Ya [i], Xa [i]) / n;
@@ -1780,6 +1782,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
             pYaXcCent_EP [i] -> Fill (cent, TMath::Sin (n * psiEPa [i]) * TMath::Cos (n * psiEPc [i]));
             pYbXcCent_EP [i] -> Fill (cent, TMath::Sin (n * psiEPb [i]) * TMath::Cos (n * psiEPc [i]));
 
+        if (mhON) {
             pXaXbMult_SP [i] -> Fill (mh, Xa [i] * Xb [i]);
             pXaXcMult_SP [i] -> Fill (mh, Xa [i] * Xc [i]);
             pXbXcMult_SP [i] -> Fill (mh, Xb [i] * Xc [i]);
@@ -1805,7 +1808,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
             pYaXbMult_EP [i] -> Fill (mh, TMath::Sin (n * psiEPa [i]) * TMath::Cos (n * psiEPb [i]));
             pYaXcMult_EP [i] -> Fill (mh, TMath::Sin (n * psiEPa [i]) * TMath::Cos (n * psiEPc [i]));
             pYbXcMult_EP [i] -> Fill (mh, TMath::Sin (n * psiEPb [i]) * TMath::Cos (n * psiEPc [i]));
-
+        }
             //sampling
             for (Int_t s = 0; s < sMax; s++) { // loop over samples
                 if (samplingMethod_ == kBootStrapping) bsIndex = s;
@@ -1842,7 +1845,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                 p2YaXbCent_EP [i] -> Fill (cent, bsIndex, TMath::Sin (n * psiEPa [i]) * TMath::Cos (n * psiEPb [i]), W [bsIndex]);
                 p2YaXcCent_EP [i] -> Fill (cent, bsIndex, TMath::Sin (n * psiEPa [i]) * TMath::Cos (n * psiEPc [i]), W [bsIndex]);
                 p2YbXcCent_EP [i] -> Fill (cent, bsIndex, TMath::Sin (n * psiEPb [i]) * TMath::Cos (n * psiEPc [i]), W [bsIndex]);
-
+            if (mhON) {
                 p2XaXbMult_SP [i] -> Fill (mh, bsIndex, Xa [i] * Xb [i], W [bsIndex]);
                 p2XaXcMult_SP [i] -> Fill (mh, bsIndex, Xa [i] * Xc [i], W [bsIndex]);
                 p2XbXcMult_SP [i] -> Fill (mh, bsIndex, Xb [i] * Xc [i], W [bsIndex]);
@@ -1869,9 +1872,10 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                 p2YaXcMult_EP [i] -> Fill (mh, bsIndex, TMath::Sin (n * psiEPa [i]) * TMath::Cos (n * psiEPc [i]), W [bsIndex]);
                 p2YbXcMult_EP [i] -> Fill (mh, bsIndex, TMath::Sin (n * psiEPb [i]) * TMath::Cos (n * psiEPc [i]), W [bsIndex]);
             }
+            }
 		}
 
-		for (Int_t itrack = 1; itrack <= mh; itrack++) {
+		for (Int_t itrack = 1; itrack <= mh; itrack++) { // <unQn>
 			skipFlag = 1;
             track = event -> GetTrack (itrack);
             pid = track -> GetPid ();
@@ -1962,7 +1966,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                     pyXaCent_EP [i] -> Fill (cent, sign * y * TMath::Cos (n * psiEPa [i]));
                     pyXbCent_EP [i] -> Fill (cent, sign * y * TMath::Cos (n * psiEPb [i]));
                     pyXcCent_EP [i] -> Fill (cent, sign * y * TMath::Cos (n * psiEPc [i]));
-
+                if (mhON) {
                     pxXaMult_SP [i] -> Fill (mh, sign * x * Xa [i]);
                     pxXbMult_SP [i] -> Fill (mh, sign * x * Xb [i]);
                     pxXcMult_SP [i] -> Fill (mh, sign * x * Xc [i]);
@@ -1988,6 +1992,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                     pyXaMult_EP [i] -> Fill (mh, sign * y * TMath::Cos (n * psiEPa [i]));
                     pyXbMult_EP [i] -> Fill (mh, sign * y * TMath::Cos (n * psiEPb [i]));
                     pyXcMult_EP [i] -> Fill (mh, sign * y * TMath::Cos (n * psiEPc [i]));
+                }
                 }
 
                 if (pt >= ptMin_ && pt <= ptMax_) {
@@ -2017,7 +2022,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                         p2xYaPtCent_EP [i] -> Fill (pt, cent, sign * x * TMath::Sin (n * psiEPa [i]));
                         p2xYbPtCent_EP [i] -> Fill (pt, cent, sign * x * TMath::Sin (n * psiEPb [i]));
                         p2xYcPtCent_EP [i] -> Fill (pt, cent, sign * x * TMath::Sin (n * psiEPc [i]));
-
+                    if (mhON) {
                         p2xXaPtMult_SP [i] -> Fill (pt, mh, sign * x * Xa [i]);
                         p2xXbPtMult_SP [i] -> Fill (pt, mh, sign * x * Xb [i]);
                         p2xXcPtMult_SP [i] -> Fill (pt, mh, sign * x * Xc [i]);
@@ -2043,6 +2048,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                         p2xYaPtMult_EP [i] -> Fill (pt, mh, sign * x * TMath::Sin (n * psiEPa [i]));
                         p2xYbPtMult_EP [i] -> Fill (pt, mh, sign * x * TMath::Sin (n * psiEPb [i]));
                         p2xYcPtMult_EP [i] -> Fill (pt, mh, sign * x * TMath::Sin (n * psiEPc [i]));
+                    }
                     }
                 }
 
@@ -2073,7 +2079,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                         p2xYaEtaCent_EP [i] -> Fill (eta, cent, x * TMath::Sin (n * psiEPa [i]));
                         p2xYbEtaCent_EP [i] -> Fill (eta, cent, x * TMath::Sin (n * psiEPb [i]));
                         p2xYcEtaCent_EP [i] -> Fill (eta, cent, x * TMath::Sin (n * psiEPc [i]));
-
+                    if (mhON) {
                         p2xXaEtaMult_SP [i] -> Fill (eta, mh, x * Xa [i]);
                         p2xXbEtaMult_SP [i] -> Fill (eta, mh, x * Xb [i]);
                         p2xXcEtaMult_SP [i] -> Fill (eta, mh, x * Xc [i]);
@@ -2099,6 +2105,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                         p2xYaEtaMult_EP [i] -> Fill (eta, mh, x * TMath::Sin (n * psiEPa [i]));
                         p2xYbEtaMult_EP [i] -> Fill (eta, mh, x * TMath::Sin (n * psiEPb [i]));
                         p2xYcEtaMult_EP [i] -> Fill (eta, mh, x * TMath::Sin (n * psiEPc [i]));
+                    }
                     }
                 }
 
@@ -2134,7 +2141,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                         p2yXaCent_EP [i] -> Fill (cent, bsIndex, sign * y * TMath::Cos (n * psiEPa [i]), W [bsIndex]);
                         p2yXbCent_EP [i] -> Fill (cent, bsIndex, sign * y * TMath::Cos (n * psiEPb [i]), W [bsIndex]);
                         p2yXcCent_EP [i] -> Fill (cent, bsIndex, sign * y * TMath::Cos (n * psiEPc [i]), W [bsIndex]);
-
+                    if (mhON) {
                         p2xXaMult_SP [i] -> Fill (mh, bsIndex, sign * x * Xa [i], W [bsIndex]);
                         p2xXbMult_SP [i] -> Fill (mh, bsIndex, sign * x * Xb [i], W [bsIndex]);
                         p2xXcMult_SP [i] -> Fill (mh, bsIndex, sign * x * Xc [i], W [bsIndex]);
@@ -2160,6 +2167,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                         p2yXaMult_EP [i] -> Fill (mh, bsIndex, sign * y * TMath::Cos (n * psiEPa [i]), W [bsIndex]);
                         p2yXbMult_EP [i] -> Fill (mh, bsIndex, sign * y * TMath::Cos (n * psiEPb [i]), W [bsIndex]);
                         p2yXcMult_EP [i] -> Fill (mh, bsIndex, sign * y * TMath::Cos (n * psiEPc [i]), W [bsIndex]);
+                    }
                     }
 
                     if (pt >= ptMin_ && pt <= ptMax_) {
@@ -2189,7 +2197,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             p3xYaPtCent_EP [i] -> Fill (pt, cent, bsIndex, sign * x * TMath::Sin (n * psiEPa [i]), W [bsIndex]);
                             p3xYbPtCent_EP [i] -> Fill (pt, cent, bsIndex, sign * x * TMath::Sin (n * psiEPb [i]), W [bsIndex]);
                             p3xYcPtCent_EP [i] -> Fill (pt, cent, bsIndex, sign * x * TMath::Sin (n * psiEPc [i]), W [bsIndex]);
-
+                        if (mhON) {
                             p3xXaPtMult_SP [i] -> Fill (pt, mh, bsIndex, sign * x * Xa [i], W [bsIndex]);
                             p3xXbPtMult_SP [i] -> Fill (pt, mh, bsIndex, sign * x * Xb [i], W [bsIndex]);
                             p3xXcPtMult_SP [i] -> Fill (pt, mh, bsIndex, sign * x * Xc [i], W [bsIndex]);
@@ -2215,6 +2223,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             p3xYaPtMult_EP [i] -> Fill (pt, mh, bsIndex, sign * x * TMath::Sin (n * psiEPa [i]), W [bsIndex]);
                             p3xYbPtMult_EP [i] -> Fill (pt, mh, bsIndex, sign * x * TMath::Sin (n * psiEPb [i]), W [bsIndex]);
                             p3xYcPtMult_EP [i] -> Fill (pt, mh, bsIndex, sign * x * TMath::Sin (n * psiEPc [i]), W [bsIndex]);
+                        }
                         }
                     }
 
@@ -2245,7 +2254,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             p3xYaEtaCent_EP [i] -> Fill (eta, cent, bsIndex, x * TMath::Sin (n * psiEPa [i]), W [bsIndex]);
                             p3xYbEtaCent_EP [i] -> Fill (eta, cent, bsIndex, x * TMath::Sin (n * psiEPb [i]), W [bsIndex]);
                             p3xYcEtaCent_EP [i] -> Fill (eta, cent, bsIndex, x * TMath::Sin (n * psiEPc [i]), W [bsIndex]);
-
+                        if (mhON) {
                             p3xXaEtaMult_SP [i] -> Fill (eta, mh, bsIndex, x * Xa [i], W [bsIndex]);
                             p3xXbEtaMult_SP [i] -> Fill (eta, mh, bsIndex, x * Xb [i], W [bsIndex]);
                             p3xXcEtaMult_SP [i] -> Fill (eta, mh, bsIndex, x * Xc [i], W [bsIndex]);
@@ -2271,6 +2280,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                             p3xYaEtaMult_EP [i] -> Fill (eta, mh, bsIndex, x * TMath::Sin (n * psiEPa [i]), W [bsIndex]);
                             p3xYbEtaMult_EP [i] -> Fill (eta, mh, bsIndex, x * TMath::Sin (n * psiEPb [i]), W [bsIndex]);
                             p3xYcEtaMult_EP [i] -> Fill (eta, mh, bsIndex, x * TMath::Sin (n * psiEPc [i]), W [bsIndex]);
+                        }
                         }
                     }
                 }
@@ -2316,7 +2326,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 			}
 		}
         testTree -> Fill (); // test
-        if (samplingMethod_ == kSubsampling) W [bsIndex] = 0; // subsampling
+        if (samplingMethod_ != kBootStrapping) W [bsIndex] = 0; // subsampling
 	}
     cout << endl;
 
@@ -2370,7 +2380,6 @@ void CFlowReconstructor::CalculateResolutionWithSampling (TProfile2D *p2XaXb, TP
     //                              p2XaXc -> GetBinContent (j, l) /
     //                              p2XbXc -> GetBinContent (j, m);
                         h2Ra -> SetBinContent (j, k, R);
-    //                    h2Ra -> SetBinContent (j, k, TMath::Abs(R) / R * TMath::Sqrt (TMath::Abs (R)));
 
                         R = 2.0 * p2XaXb -> GetBinContent (j, k) *
                                   p2XbXc -> GetBinContent (j, k) /
@@ -2379,7 +2388,6 @@ void CFlowReconstructor::CalculateResolutionWithSampling (TProfile2D *p2XaXb, TP
     //                              p2XbXc -> GetBinContent (j, l) /
     //                              p2XaXc -> GetBinContent (j, m);
                         h2Rb -> SetBinContent (j, k, R);
-    //                    h2Rb -> SetBinContent (j, k, TMath::Abs(R) / R * TMath::Sqrt (TMath::Abs (R)));
     //
                         R = 2.0 * p2XaXc -> GetBinContent (j, k) *
                                   p2XbXc -> GetBinContent (j, k) /
@@ -2388,15 +2396,12 @@ void CFlowReconstructor::CalculateResolutionWithSampling (TProfile2D *p2XaXb, TP
     //                              p2XbXc -> GetBinContent (j, l) /
     //                              p2XaXb -> GetBinContent (j, m);
                         h2Rc -> SetBinContent (j, k, R);
-    //                    h2Rc -> SetBinContent (j, k, TMath::Abs(R) / R * TMath::Sqrt (TMath::Abs (R)));
                     }
 
                     if (resMethod_ == kRandomSubevent) {
                         R = 2.0 * p2XaXb -> GetBinContent (j, k);
                         h2Ra -> SetBinContent (j, k, R);
                         h2Rb -> SetBinContent (j, k, R);
-    //                    h2Ra -> SetBinContent (j, k, TMath::Abs(R) / R * TMath::Sqrt (TMath::Abs (R)));
-    //                    h2Rb -> SetBinContent (j, k, TMath::Abs(R) / R * TMath::Sqrt (TMath::Abs (R)));
                     }
                 }
     }
@@ -2547,6 +2552,7 @@ void CFlowReconstructor::ReflectRapidity (TH1F *hVEta, TH1F *hVEtaRefl, Int_t nH
 void CFlowReconstructor::PlotKinematics (TFile *corrFile, TDirectory *outputDir, Int_t nHarmonic, Int_t step) {
     outputDir -> cd ();
     TCanvas *c;
+    gStyle -> SetOptStat (1);
     TH1 *hList [4];
     TH2 *h2List [4];
 
@@ -2965,8 +2971,8 @@ void CFlowReconstructor::WritePreviousResults (TDirectory *dir) { // put here an
     }
 
     TGraphErrors *gR1Cent = new TGraphErrors (nCentClasses1, cent1, R1, 0, 0);
-    TGraphErrors *gR2Cent = new TGraphErrors (nCentClasses2, cent1, R2, 0, 0);
-    TGraphErrors *gV1Cent = new TGraphErrors (nCentClasses1, cent2, V1, 0, V1err);
+    TGraphErrors *gR2Cent = new TGraphErrors (nCentClasses2, cent2, R2, 0, 0);
+    TGraphErrors *gV1Cent = new TGraphErrors (nCentClasses1, cent1, V1, 0, V1err);
     TGraphErrors *gV2Cent = new TGraphErrors (nCentClasses2, cent2, V2, 0, V2err);
 
     TGraphErrors *gV1yN = new TGraphErrors (9, y1N, vy1N, 0, vey1N);
