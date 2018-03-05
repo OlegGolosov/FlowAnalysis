@@ -7,7 +7,7 @@ using std::endl;
 
 void rootlogon () {
     TString location = gSystem -> WorkingDirectory ();
-	location = "/home/basov/ovgol/FlowAnalysis"; // explicit
+	//location = "/home/basov/ovgol/FlowAnalysis"; // explicit
     location += "/";
     std::cout << location << std::endl;
 
@@ -62,7 +62,8 @@ void rootlogon () {
 	gROOT -> LoadMacro (location + "Generator/CEventGenerator.cxx" + debugString);
 	gROOT -> LoadMacro (location + "Generator/CTreeBuilder.cxx" + debugString);
 	gROOT -> LoadMacro (location + "Generator/CAcceptance.cxx" + debugString);
-	gROOT -> LoadMacro (location + "TreeConverter/CTreeConverter.cxx" + debugString);
+	gROOT -> LoadMacro (location + "TreeConverter/CTreeConverterHADES.cxx" + debugString);
+	gROOT -> LoadMacro (location + "TreeConverter/CTreeConverterNA49.cxx" + debugString);
 	gROOT -> LoadMacro (location + "FlowReconstructor/CFlowReconstructor.cxx" + debugString);
 
 	cout << "Compiled???" << endl;

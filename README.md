@@ -17,7 +17,7 @@ Instructions:
 
 4. Edit the interface files "RunGeneration.C", "RunConvertation.C", "RunFlowAnalysis.C" as required (sometimes you'll need to edit "config.h" and "ManualFunctions.h" as well)
 
-5. Launch root from the project folder and run the desired macro
+5. Launch root from the project folder and run the desired script
 
 
 
