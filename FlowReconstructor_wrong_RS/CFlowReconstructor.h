@@ -88,10 +88,11 @@ public:
 	bool SetEtaAveragingRange (Int_t harmonic, Float_t etaMin, Float_t etaMax);
 	void SetNbinsEta (Int_t nBinsEta);
 	void SetNbinsEtaRefl (Int_t nBinsEtaRefl);
+	void AnalyzeTree ();
 	void GetCorrelations ();
 	void GetFlow ();
 	void FillReferenceHist ();
-//	void Reference (Float_t ptLow, Float_t ptHigh, Float_t etaLow, Float_t etaHigh);
+	void Reference (Float_t ptLow, Float_t ptHigh, Float_t etaLow, Float_t etaHigh);
 	void SetHarmonicFunction (Int_t n, floatFunction func);
 	bool SetEtaSubeventsLimits (Int_t harmonic, Float_t lim1, Float_t lim2, Float_t lim3, Float_t lim4, Float_t lim5 = 0.0, Float_t lim6 = 0.0);
 	bool SetPtSubeventsLimits (Int_t harmonic, Float_t lim1, Float_t lim2, Float_t lim3, Float_t lim4, Float_t lim5 = 0.0, Float_t lim6 = 0.0);

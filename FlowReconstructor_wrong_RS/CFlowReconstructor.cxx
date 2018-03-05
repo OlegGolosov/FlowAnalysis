@@ -9,6 +9,7 @@
 #include <TROOT.h>
 #include <climits>
 #include <vector>
+#include <float.h>
 #include <TPaveStats.h>
 #include <TGraphErrors.h>
 #include <TLegend.h>
@@ -268,7 +269,7 @@ void CFlowReconstructor::BuildSampleTree (TTree *inputTree) {
 
     for (Int_t i = 0; i < nBinsBS_; i++) { // fill matrix
         for (Long64_t j = 0; j < nEvents; j++) {
-            n = r.Rndm () * (nEvents - 1);
+            n = r.Rndm () * nEvents;
             events [n][i] ++;
         }
 	}
@@ -286,6 +287,201 @@ void CFlowReconstructor::BuildSampleTree (TTree *inputTree) {
 	sampleFile -> Write ();
 	sampleFile -> Close ();
 	cout << "Finished building sample tree!\n";
+}
+
+void CFlowReconstructor::AnalyzeTree () {
+//	Int_t mh, n, sign [nHarmonics][nBinsEta_], *flagPtEta, *flagPt, *flagEta, currFlagPtEta, currFlagPt, currFlagEta;
+//	Int_t pid, charge;
+//	Float_t cent, pt, eta, phi, x, y, X, Y;
+//	TH1F *hMh, *hCent, *hPt, *hEta, *hPhi, *hMhPt, *hMhEta;
+//	TH2F *h2PtEta, *h2MhPtEta, *h2PidCharge;
+//	TH1F *hXnPt [nHarmonics], *hXnEta [nHarmonics], *hYnPt [nHarmonics], *hYnEta [nHarmonics];
+//	TProfile *pxnXnPt [nHarmonics], *pynYnPt [nHarmonics], *pxnXnEta [nHarmonics], *pynYnEta [nHarmonics];
+//	TH2F *h2XnPtEta [nHarmonics], *h2YnPtEta [nHarmonics];
+//	TProfile2D *p2xnXnPtEta [nHarmonics], *p2ynYnPtEta [nHarmonics];
+//
+//	event = new CEvent;
+//	inputFile = new TFile (nonUniformInputFileName + ".root", "READ");
+//	inputTree = (TTree*) inputFile -> Get ("Tree");
+//	inputTree -> SetBranchAddress ("Event", &event);
+//	histFile = new TFile (histFileName_ + "_distr.root", "RECREATE");
+//	GetVariableRanges ();
+//
+//	hMh = new TH1F ("hMh", "Multiplicity distribution; mh; nEvents", mhMax_, mhMin_, mhMax_);
+//	hCent = new TH1F ("hCent", "Centrality distribution; cent; nEvents", 13, 0.0, 0.65); // temporarily to be configured manually!!!
+//	hPt = new TH1F ("hPt", "P_{T} distribution; P_{T}[GeV]; nTracks", 100, ptMin_, ptMax_);
+//	hEta = new TH1F ("hEta", varName_ + " distribution; " + varName_ + "; nTracks", 100, etaMin_, etaMax_);
+//	h2PtEta = new TH2F ("h2PtEta", "P_{T} vs " + varName_ + " distribution; P_{T}[GeV]; " + varName_ + "; nTracks", 100, ptMin_, ptMax_, 100, etaMin_, etaMax_);
+//	hPhi = new TH1F ("hPhi", "#phi distribution; #phi; nTracks", 100, 0.0, 2 * PI);
+//	hMhPt = new TH1F ("hMhPt", "Multiplicity distribution versus P_{T}; P_{T}[GeV]; mh", nBinsPt_, ptMin_, ptMax_);
+//	hMhEta = new TH1F ("hMhEta", "Multiplicity distribution versus " + varName_ + "; " + varName_ + "; mh", nBinsEta_, etaMin_, etaMax_);
+//	h2MhPtEta = new TH2F ("h2MhPtEta", "Multiplicity distribution versus P_{T} and " + varName_ + "; P_{T}[GeV]; " + varName_ + "; mh", nBinsPt_, ptMin_, ptMax_, nBinsEta_, etaMin_, etaMax_);
+//	h2PidCharge = new TH2F ("h2PidCharge", "Particle ID vs charge; pID; charge", kNPartTypes, -0.5, kNPartTypes - 0.5, 3, -1.5, 1.5);
+//	for (int i = 0; i < nHarmonics; i++) {
+//		n = harmonicsMap [i];
+//		pxnXnPt [i] = new TProfile (Form ("px%iX%iPt", n, n), Form ("x_{%i}X_{%i} versus P_{T}; P_{T}[GeV]", n, n), nBinsPt_, ptMin_, ptMax_);
+//		pynYnPt [i] = new TProfile (Form ("py%iY%iPt", n, n), Form ("y_{%i}Y_{%i} versus P_{T}; P_{T}[GeV]", n, n), nBinsPt_, ptMin_, ptMax_);
+//		pxnXnEta [i] = new TProfile (Form ("px%iX%iEta", n, n), Form ("x_{%i}X_{%i} versus ", n, n) + varName_ + "; " + varName_, nBinsEta_, etaMin_, etaMax_);
+//		pynYnEta [i] = new TProfile (Form ("py%iY%iEta", n, n), Form ("y_{%i}Y_{%i} versus ", n, n) + varName_ + "; " + varName_, nBinsEta_, etaMin_, etaMax_);
+//		p2xnXnPtEta [i] = new TProfile2D (Form ("p2x%iX%iPtEta", n, n), Form ("x_{%i}X_{%i} versus P_{T} and ", n, n) + varName_ + "; P_{T}[GeV]; " + varName_, nBinsPt_, ptMin_, ptMax_, nBinsEta_, etaMin_, etaMax_);
+//		p2ynYnPtEta [i] = new TProfile2D (Form ("p2y%iY%iPtEta", n, n), Form ("y_{%i}Y_{%i} versus P_{T} and ", n, n) + varName_ + "; P_{T}[GeV]; " + varName_, nBinsPt_, ptMin_, ptMax_, nBinsEta_, etaMin_, etaMax_);
+//		h2XnPtEta [i] = new TH2F (Form ("h2X%iPtEta", n), Form ("X_{%i} versus P_{T} and ", n) + varName_ + "; P_{T}[GeV]; " + varName_, nBinsPt_, ptMin_, ptMax_, nBinsEta_, etaMin_, etaMax_);
+//		h2YnPtEta [i] = new TH2F (Form ("h2Y%iPtEta", n), Form ("Y_{%i} versus P_{T} and ", n) + varName_ + "; P_{T}[GeV]; " + varName_, nBinsPt_, ptMin_, ptMax_, nBinsEta_, etaMin_, etaMax_);
+//		hXnPt [i] = new TH1F (Form ("hX%iPt", n), Form ("X_{%i} versus P_{T}; P_{T}[GeV]; X_{%i}", n, n), nBinsPt_, ptMin_, ptMax_);
+//		hYnPt [i] = new TH1F (Form ("hY%iPt", n), Form ("Y_{%i} versus P_{T}; P_{T}[GeV]; Y_{%i}", n, n), nBinsPt_, ptMin_, ptMax_);
+//		hXnEta [i] = new TH1F (Form ("hX%iEta", n), Form ("X_{%i} versus ", n) + varName_ + "; " + varName_ + Form ("; X_{%i}", n), nBinsEta_, etaMin_, etaMax_);
+//		hYnEta [i] = new TH1F (Form ("hY%iEta", n), Form ("Y_{%i} versus ", n) + varName_ + "; " + varName_ + Form ("; Y_{%i}", n), nBinsEta_, etaMin_, etaMax_);
+//	}
+//
+//	flagPtEta = new Int_t [mhMax_];
+//	flagPt = new Int_t [mhMax_];
+//	flagEta = new Int_t [mhMax_];
+//
+//	Float_t h = (etaMax_ - etaMin_) / nBinsEta_;
+//	eta = etaMin_ + 0.5 * h;
+//	for (Int_t i = 0; i < nHarmonics; i++) {
+//		for (Int_t k = 0; k < nBinsEta_; k++) {
+//			sign [i][k] = fabs (eta) / eta;
+//			eta += h;
+//		}
+//	}
+//
+//    cout << endl;
+//
+//	Long64_t nEvents = inputTree -> GetEntries ();
+//	for (Long64_t jentry = 0; jentry < nEvents; jentry++) {
+//		inputTree -> GetEntry (jentry);
+//		cout << "\rEvent " << jentry + 1 << " from " << nEvents;
+//		mh = event -> GetMh ();
+//		cent = event -> GetCent ();
+//		hMh -> Fill (mh);
+//		hCent -> Fill (cent);
+//
+//		for (Int_t itrack = 1; itrack <= mh; itrack++) {
+//			track = event -> GetTrack (itrack);
+//			pt = track -> GetPt ();
+//			eta = track -> GetEta ();
+//			phi = track -> GetPhi ();
+//			charge = track -> GetCharge ();
+//			pid = track -> GetPid ();
+//			flagPtEta [itrack - 1] = h2XnPtEta [0] -> FindBin (pt, eta);
+//			flagPt [itrack - 1] = hXnPt [0] -> FindBin (pt);
+//			flagEta [itrack - 1] = hXnEta [0] -> FindBin (eta);
+//
+//            hPt -> Fill (pt);
+//            hEta -> Fill (eta);
+//			h2PtEta -> Fill (pt, eta);
+//            hPhi -> Fill (phi);
+//			hMhPt -> Fill (pt);
+//			hMhEta -> Fill (eta);
+//			h2MhPtEta -> Fill (pt, eta);
+//            h2PidCharge -> Fill (pid, charge);
+//
+//			for (Int_t i = 0; i < nHarmonics; i++) {
+//				n = harmonicsMap [i];
+//				x = TMath::Cos (n * phi);
+//				y = TMath::Sin (n * phi);
+//				h2XnPtEta [i] -> Fill (pt, eta, x);
+//				h2YnPtEta [i] -> Fill (pt, eta, y);
+//				hXnPt [i] -> Fill (pt, x);
+//				hYnPt [i] -> Fill (pt, y);
+//				hXnEta [i] -> Fill (eta, x);
+//				hYnEta [i] -> Fill (eta, y);
+//			}
+//		}
+//
+//		for (Int_t i = 0; i < nHarmonics; i++) {
+//			n = harmonicsMap [i];
+//
+//			for (Int_t j = 1; j <= nBinsPt_; j++) {
+//				for (Int_t k = 1; k <= nBinsEta_; k++) {
+//					X = h2XnPtEta [i] -> GetBinContent (j, k);
+//					Y = h2YnPtEta [i] -> GetBinContent (j, k);
+//					currFlagPtEta = h2XnPtEta [i] -> GetBin (j, k);
+//					for (Int_t itrack = 1; itrack <= mh; itrack++) {
+//						track = event -> GetTrack (itrack);
+//						pt = track -> GetPt ();
+//						eta = track -> GetEta ();
+//						phi = track -> GetPhi ();
+//						x = TMath::Cos (n * phi);
+//						y = TMath::Sin (n * phi);
+//						if (flagPtEta [itrack - 1] == currFlagPtEta) {
+//							p2xnXnPtEta [i] -> Fill (pt, eta, sign [i][k] * x * (X - x));
+//							p2ynYnPtEta [i] -> Fill (pt, eta, sign [i][k] * y * (Y - y));
+//						}
+//						else {
+//							p2xnXnPtEta [i] -> Fill (pt, eta, sign [i][k] * x * X);
+//							p2ynYnPtEta [i] -> Fill (pt, eta, sign [i][k] * y * Y);
+//						}
+//					}
+//				}
+//			}
+//
+//			for (Int_t j = 1; j <= nBinsPt_; j++) {
+//				X = hXnPt [i] -> GetBinContent (j);
+//				Y = hYnPt [i] -> GetBinContent (j);
+//				currFlagPt = hXnPt [i] -> GetBin (j);
+//				for (Int_t itrack = 1; itrack <= mh; itrack++) {
+//					track = event -> GetTrack (itrack);
+//					pt = track -> GetPt ();
+//					eta = track -> GetEta ();
+//					phi = track -> GetPhi ();
+//					x = TMath::Cos (n * phi);
+//					y = TMath::Sin (n * phi);
+//					if (flagPt [itrack - 1] == currFlagPt) {
+//						pxnXnPt [i] -> Fill (pt, x * (X - x));
+//						pynYnPt [i] -> Fill (pt, y * (Y - y));
+//					}
+//					else {
+//						pxnXnPt [i] -> Fill (pt, x * X);
+//						pynYnPt [i] -> Fill (pt, y * Y);
+//					}
+//				}
+//			}
+//
+//			for (Int_t k = 1; k <= nBinsEta_; k++) {
+//				X = hXnEta [i] -> GetBinContent (k);
+//				Y = hYnEta [i] -> GetBinContent (k);
+//				currFlagEta = hXnEta [i] -> GetBin (k);
+//				for (Int_t itrack = 1; itrack <= mh; itrack++) {
+//					track = event -> GetTrack (itrack);
+//					pt = track -> GetPt ();
+//					eta = track -> GetEta ();
+//					phi = track -> GetPhi ();
+//					x = TMath::Cos (n * phi);
+//					y = TMath::Sin (n * phi);
+//					if (flagEta [itrack - 1] == currFlagEta) {
+//						pxnXnEta [i] -> Fill (eta, sign [i][k] * x * (X - x));
+//						pynYnEta [i] -> Fill (eta, sign [i][k] * y * (Y - y));
+//					}
+//					else {
+//						pxnXnEta [i] -> Fill (eta, sign [i][k] * x * X);
+//						pynYnEta [i] -> Fill (eta, sign [i][k] * y * Y);
+//					}
+//				}
+//			}
+//			h2XnPtEta [i] -> Reset ("ICESM");
+//			h2YnPtEta [i] -> Reset ("ICESM");
+//			hXnPt [i] -> Reset ("ICESM");
+//			hYnPt [i] -> Reset ("ICESM");
+//			hXnEta [i] -> Reset ("ICESM");
+//			hYnEta [i] -> Reset ("ICESM");
+//		}
+//	}
+//
+//	for (Int_t i = 0; i < nHarmonics; i++) {
+//		delete h2XnPtEta [i];
+//		delete h2YnPtEta [i];
+//		delete hXnPt [i];
+//		delete hYnPt [i];
+//		delete hXnEta [i];
+//		delete hYnEta [i];
+//	}
+//	histFile -> Write ();
+//	histFile -> Close ();
+//	delete [] flagPtEta;
+//	delete [] flagPt;
+//	delete [] flagEta;
 }
 
 bool CFlowReconstructor::SetEtaSubeventsLimits (Int_t harmonic, Float_t lim1, Float_t lim2, Float_t lim3, Float_t lim4, Float_t lim5, Float_t lim6) {
@@ -378,14 +574,46 @@ void CFlowReconstructor::SetHarmonicFunction (Int_t n, floatFunction func){
 }
 
 void CFlowReconstructor::GetVariableRanges (TTree *inputTree) {
-	mhMin_ = inputTree -> GetMinimum ("mh");
-	mhMax_ = inputTree -> GetMaximum ("mh");
-	ptMin_ = inputTree -> GetMinimum ("pt");
-	ptMax_ = inputTree -> GetMaximum ("pt");
-	etaMin_ = inputTree -> GetMinimum ("eta");
-	etaMax_ = inputTree -> GetMaximum ("eta");
-	centMin_ = inputTree -> GetMinimum ("cent");
-	centMax_ = inputTree -> GetMaximum ("cent");
+	mhMin_ = INT_MAX;
+	mhMax_ = 0;
+	ptMin_ = FLT_MAX;
+	ptMax_ = 0.0;
+	etaMin_ = FLT_MAX;
+	etaMax_ = -FLT_MAX;
+	centMin_ = 1.0;
+	centMax_ = 0.0;
+	Float_t cent;
+	Int_t mh;
+	Float_t pt, eta;
+	CEvent *event;
+	CTrack *track;
+	Long64_t nEvents = inputTree -> GetEntries ();
+	for (Long64_t jentry = 0; jentry < nEvents; jentry++) {
+		inputTree -> GetEntry (jentry);
+		mh = event -> GetMh ();
+		cent = event -> GetCent ();
+		if (mh > mhMax_)
+			mhMax_ = mh;
+		if (mh < mhMin_)
+			mhMin_ = mh;
+		if (cent > centMax_)
+			centMax_ = cent;
+		if (cent < centMin_)
+			centMin_ = cent;
+		for (Int_t itrack = 1; itrack <= mh; itrack++) {
+			track = event -> GetTrack (itrack);
+			pt = track -> GetPt ();
+			eta = track -> GetEta ();
+			if (pt > ptMax_)
+				ptMax_ = pt;
+			if (pt < ptMin_)
+				ptMin_ = pt;
+			if (eta > etaMax_)
+				etaMax_ = eta;
+			if (eta < etaMin_)
+				etaMin_ = eta;
+		}
+	}
 	cout << "ptMin_ = " << ptMin_ << "\tetaMin_ = " << etaMin_ << "\tptMax_ = " << ptMax_ << "\tetaMax_ = " << etaMax_ << endl;
 }
 
@@ -414,10 +642,10 @@ void CFlowReconstructor::SetNonUniformInputFileName (TString name) {
 
 void CFlowReconstructor::TH2toTH1withSampling (TH2 *h2In, TH1 *hOut, TDirectory *dir) {
     Int_t nBinsDistr, j, k, maxBin, counter, nBinsFit = 20, nEmptyBins = 5;
-    Float_t xMin, xMax, xLow, xHigh, valuesFraction = 0.0;
+    Float_t R, Rerr, xMin, xMax, xLow, xHigh, valuesFraction = 0.0;
     TDirectory *newDir;
     TH1F *hTemp;
-//    Double_t par [3];
+    Double_t par [3];
     vector <Float_t> values;
     Int_t vsize;
     Int_t nBinsX = h2In -> GetNbinsX ();
@@ -430,7 +658,7 @@ void CFlowReconstructor::TH2toTH1withSampling (TH2 *h2In, TH1 *hOut, TDirectory 
             float d = h2In -> GetBinContent (i, j);
             if (h2In -> GetBinContent (i, j) != 0.0)
 //            if (h2In -> GetBinContent (i, j) < 100.0)
-                values.push_back (d);
+                values.push_back (h2In -> GetBinContent (i, j));
         }
         sort (values.begin(), values.end());
         vsize = values.size ();
@@ -509,7 +737,7 @@ void CFlowReconstructor::SetupQnCorrectionsManager (TFile *qnInputFile, TFile *q
 	QnManPt -> SetCalibrationHistogramsList (qnPtInputFile);
 	QnManEta -> SetCalibrationHistogramsList (qnEtaInputFile);
 	QnCorrectionsEventClassVariablesSet *CorrEventClasses = new QnCorrectionsEventClassVariablesSet (nEventClassesDimensions);
-//    CorrEventClasses -> Add (new QnCorrectionsEventClassVariable (kNrun, VarNames [kNrun], nRuns_, nRunMin_ - 0.5, nRunMax_ + 0.5)); // patch
+    CorrEventClasses -> Add (new QnCorrectionsEventClassVariable (kNrun, VarNames [kNrun], nRuns_, nRunMin_ - 0.5, nRunMax_ + 0.5));
 	CorrEventClasses -> Add (new QnCorrectionsEventClassVariable (kCent, VarNames [kCent], nBinsCent_, centMin_, centMax_));
 
 	QnCorrectionsDetector *myDetectorOne;
@@ -688,26 +916,19 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 	if (samplingMethod_ == kBootStrapping && step == firstStep_) BuildSampleTree (inputTree);
     if (step == firstStep_) option = "recreate";
     if (step > firstStep_) option = "update";
-	cout << "histFileName_ = " << histFileName_ << endl;
-	cout << "option = " << option << endl;
-	cout << "firstStep_ = " << firstStep_ << endl;
-	cout << "lastStep_ = " << lastStep_ << endl;
-	cout << "step = " << step << endl;
 	if (step >= firstStep_) {
         histFile = new TFile (histFileName_ + "_corr.root", option);
-        if (!histFile) cout << "NO CORR FILE CREATED!!!";
         histDir = histFile -> mkdir (dirName [step]);
         servHistDir = histDir -> mkdir ("Source Histograms");
 	}
 
 	Long64_t nEvents = inputTree -> GetEntries ();
-//    Int_t centBin;
+    Int_t centBin;
     Bool_t skipFlag;
 	Int_t *mha = new Int_t [nHarmonics], *mhb = new Int_t [nHarmonics], *mhc = new Int_t [nHarmonics];
-    vector <int> *trackIndex = new vector <int> [nHarmonics];
-	Int_t **subeventFlag, *nSelectedTracks = new Int_t [nHarmonics], *aligner = new Int_t [nHarmonics];
-	Int_t n, nRun, mh, charge, pid, nFlowParts = flowParticles.size (), bsIndex, subeventIndex, sMax;
-	Float_t cent, p, pt, eta, phi, x, y, sign = 1.0, weight, *Eveto, summEveto;
+	Int_t **subeventFlag;
+	Int_t n, nRun, mh, charge, pid, nFlowParts = flowParticles.size (), bsIndex, sMax;
+	Float_t cent, p, pt, eta, phi, m, x, y, sign = 1.0, subeventIndex, weight, *Eveto, summEveto;
 //	Float_t ptAvg [nHarmonics][nBinsCent_], ptAvgA [nHarmonics][nBinsCent_], ptAvgB [nHarmonics][nBinsCent_], ptAvgC [nHarmonics][nBinsCent_];
 	TRandom3 r (0);
 
@@ -726,30 +947,27 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 	Float_t *Xa = new Float_t [nHarmonics], *Ya = new Float_t [nHarmonics];
 	Float_t *Xb = new Float_t [nHarmonics], *Yb = new Float_t [nHarmonics];
 	Float_t *Xc = new Float_t [nHarmonics], *Yc = new Float_t [nHarmonics];
-//	Float_t *Q = new Float_t [nHarmonics], *Qa = new Float_t [nHarmonics], *Qb = new Float_t [nHarmonics], *Qc = new Float_t [nHarmonics];
+	Float_t *Q = new Float_t [nHarmonics], *Qa = new Float_t [nHarmonics], *Qb = new Float_t [nHarmonics], *Qc = new Float_t [nHarmonics];
 	Float_t *psiEP = new Float_t [nHarmonics], *psiEPa = new Float_t [nHarmonics], *psiEPb = new Float_t [nHarmonics], *psiEPc = new Float_t [nHarmonics];
 	Float_t *XRP = new Float_t [nHarmonics], *YRP = new Float_t [nHarmonics], *psiRP = new Float_t [nHarmonics];
 
-	TFile *testFile;
-	TTree *testTree;
-    if (step >= firstStep_) {
+
     // test
-        testFile = new TFile (histFileName_ + Form ("_Q_%i.root", step), "RECREATE");
-        testTree = new TTree ("treeQ", "Test tree");
+        TFile *testFile = new TFile (histFileName_ + Form ("_Q_%i.root", step), "RECREATE");
+        TTree *testTree = new TTree ("treeQ", "Test tree");
         testTree -> Branch ("nRun", &nRun);
-        testTree -> Branch ("Xa", Xa, "Xa[1]/F");
-        testTree -> Branch ("Xb", Xb, "Xb[1]/F");
-        testTree -> Branch ("Xc", Xc, "Xc[1]/F");
-        testTree -> Branch ("Ya", Ya, "Ya[1]/F");
-        testTree -> Branch ("Yb", Yb, "Yb[1]/F");
-        testTree -> Branch ("Yc", Yc, "Yc[1]/F");
-        testTree -> Branch ("mha", mha, "mha[1]/I");
-        testTree -> Branch ("mhb", mhb, "mhb[1]/I");
-        testTree -> Branch ("mhc", mhc, "mhc[1]/I");
+        testTree -> Branch ("Xa", &Xa, "Xa[2]/F");
+        testTree -> Branch ("Xb", &Xb, "Xb[2]/F");
+        testTree -> Branch ("Xc", &Xc, "Xc[2]/F");
+        testTree -> Branch ("Ya", &Ya, "Ya[2]/F");
+        testTree -> Branch ("Yb", &Yb, "Yb[2]/F");
+        testTree -> Branch ("Yc", &Yc, "Yc[2]/F");
+        testTree -> Branch ("mha", &mha, "mha[2]/I");
+        testTree -> Branch ("mhb", &mhb, "mhb[2]/I");
+        testTree -> Branch ("mhc", &mhc, "mhc[2]/I");
         testTree -> Branch ("Nsub", &bsIndex, 32000, 4);
         testTree -> Branch ("cent", &cent, 32000, 4);
     // test
-    }
 
     vector <TH2F*> h2nEventSampleWeight;
 	vector <TH1F*> hMh, hMha, hMhb, hMhc;
@@ -816,8 +1034,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 
 	for (Int_t i = 0; i < nHarmonics; i++) { // create histograms
 		n = harmonicsMap [i];
-		subeventFlag [i] = new Int_t [mhMax_ * 2];
-		aligner [i] = 0;
+		subeventFlag [i] = new Int_t [mhMax_];
         if (step >= firstStep_) {
         servHistDir -> cd ();
 		h2nEventSampleWeight.push_back (new TH2F (Form ("h2nEventSampleWeight_%i", n), Form ("Event weights in samples (n = %i);Nevent;Sample", n), nEvents, 0, nEvents, nBinsBS_, 0, nBinsBS_));
@@ -1092,7 +1309,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 		inputTree -> GetEntry (jentry);
 		if (samplingMethod_ == kBootStrapping && step >= firstStep_) sampleTree -> GetEntry (jentry);
         else if (step >= firstStep_) {
-            bsIndex = gRandom -> Rndm () * (nBinsBS_ - 1); // subsampling
+            bsIndex = gRandom -> Rndm () * nBinsBS_; // subsampling
             W [bsIndex] = 1; // subsampling
         }
 		nRun = event -> GetNrun ();
@@ -1116,7 +1333,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 		if (mh < mhMin_ || mh > mhMax_) {
             continue;
         }
-//		QnMan -> GetDataContainer () [kNrun] = nRun; // patch
+		QnMan -> GetDataContainer () [kNrun] = nRun;
 		QnMan -> GetDataContainer () [kCent] = cent;
 
 		for (Int_t i = 0; i < nHarmonics; i++) { // zero out subevent multiplicities
@@ -1143,11 +1360,15 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                 n = harmonicsMap [i];
 
 // weight patches
-                weight = 1.0;
-//                if (pid < kVeto1 && n == 1) weight = eta;
-//                if (pid < kVeto1 && n == 2) weight = pt;
-                if (pid == kFW) weight = charge;
-//                if (pid == kPSD) weight = p;
+                if (pid < kVeto1 && n == 1) weight = eta;
+                if (pid < kVeto1 && n == 2) weight = pt;
+                else if (pid == kVeto1) weight = Eveto [0] / summEveto;
+                else if (pid == kVeto2) weight = Eveto [1] / summEveto;
+                else if (pid == kVeto3) weight = Eveto [2] / summEveto;
+                else if (pid == kVeto4) weight = Eveto [3] / summEveto;
+                else if (pid == kFW) weight = charge;
+                else if (pid == kPSD) weight = p;
+                else weight = 1.0;
 // end of weight patches
 
                 subeventFlag [i][itrack - 1] = 0;
@@ -1158,125 +1379,64 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
                 }
                 if (resChargeSet && charge * resCharge < 0) continue; // resolution from differently charged particles
 
-                if (resMethod_ == kThreeSubevents) {
-                    for (UInt_t j = 0; j < resParticles [i][0].size(); j++) {
-                        if (pid == resParticles [i][0][j]) {
-                            if (eta > etaLim_ [i][0] && eta < etaLim_ [i][1] && pt > ptLim_ [i][0] && pt < ptLim_ [i][1]) {
-                                QnMan -> AddDataVector (kNDetectors * i + kDetector1A, phi, weight);
-                                subeventFlag [i][itrack - 1] = 1;
-                                mha [i] ++;
-                                if (step >= firstStep_) {
-                                    h2PtEtaA [i] -> Fill (eta, pt);
-                                    pPtEtaA [i] -> Fill (eta, pt);
-                                    pPtCentA [i] -> Fill (cent, pt, eta);
-                                }
-                                break;
+                for (UInt_t j = 0; j < resParticles [i][0].size(); j++) {
+                    if (resMethod_ == kRandomSubevent && subeventIndex >= 0.5) break;
+                    if (pid == resParticles [i][0][j]) {
+                        if (eta > etaLim_ [i][0] && eta < etaLim_ [i][1] && pt > ptLim_ [i][0] && pt < ptLim_ [i][1]) {
+//                            if (n == 1 && pid == kProton) phi += TMath::Pi (); // patch
+                            QnMan -> AddDataVector (kNDetectors * i + kDetector1A, phi, weight);
+                            subeventFlag [i][itrack - 1] = 1;
+                            mha [i] ++;
+                            if (step >= firstStep_) {
+                                h2PtEtaA [i] -> Fill (eta, pt);
+                                pPtEtaA [i] -> Fill (eta, pt);
+                                pPtCentA [i] -> Fill (cent, pt, eta);
                             }
+                            break;
                         }
                     }
+				}
 
-                    for (UInt_t j = 0; j < resParticles [i][1].size(); j++) {
-                        if (pid == resParticles [i][1][j]) {
-                            if (eta > etaLim_ [i][2] && eta < etaLim_ [i][3] && pt > ptLim_ [i][2] && pt < ptLim_ [i][3]) {
-                                QnMan -> AddDataVector (kNDetectors * i + kDetector1B, phi, weight);
-                                subeventFlag [i][itrack - 1] = 2;
-                                mhb [i] ++;
-                                if (step >= firstStep_) {
-                                    h2PtEtaB [i] -> Fill (eta, pt);
-                                    pPtEtaB [i] -> Fill (eta, pt);
-                                    pPtCentB [i] -> Fill (cent, pt, eta);
-                                }
-                                break;
+				for (UInt_t j = 0; j < resParticles [i][1].size(); j++) {
+                    if (resMethod_ == kRandomSubevent && subeventIndex < 0.5) break;
+                    if (pid == resParticles [i][1][j]) {
+                        if (eta > etaLim_ [i][2] && eta < etaLim_ [i][3] && pt > ptLim_ [i][2] && pt < ptLim_ [i][3]) {
+//                            if (n == 1 && pid == kProton) phi += TMath::Pi (); // patch
+                            QnMan -> AddDataVector (kNDetectors * i + kDetector1B, phi, weight);
+                            subeventFlag [i][itrack - 1] = 2;
+                            mhb [i] ++;
+                            if (step >= firstStep_) {
+                                h2PtEtaB [i] -> Fill (eta, pt);
+                                pPtEtaB [i] -> Fill (eta, pt);
+                                pPtCentB [i] -> Fill (cent, pt, eta);
                             }
+                            break;
                         }
                     }
+				}
 
-                    for (UInt_t j = 0; j < resParticles [i][2].size(); j++) {
-                        if (pid == resParticles [i][2][j]) {
-                            if (eta > etaLim_ [i][4] && eta < etaLim_ [i][5] && pt > ptLim_ [i][4] && pt < ptLim_ [i][5]) {
-                                QnMan -> AddDataVector (kNDetectors * i + kDetector1C, phi, weight);
-                                subeventFlag [i][itrack - 1] = 3;
-                                mhc [i] ++;
-                                if (step >= firstStep_) {
-                                    h2PtEtaC [i] -> Fill (eta, pt);
-                                    pPtEtaC [i] -> Fill (eta, pt);
-                                    pPtCentC [i] -> Fill (cent, pt, eta);
-                                }
-                                break;
+				for (UInt_t j = 0; j < resParticles [i][2].size(); j++) {
+                    if (resMethod_ == kRandomSubevent) break;
+                    if (pid == resParticles [i][2][j]) {
+                        if (eta > etaLim_ [i][4] && eta < etaLim_ [i][5] && pt > ptLim_ [i][4] && pt < ptLim_ [i][5]) {
+//                            if (n == 1 && pid == kProton) phi += TMath::Pi (); // patch
+                            QnMan -> AddDataVector (kNDetectors * i + kDetector1C, phi, weight);
+                            subeventFlag [i][itrack - 1] = 3;
+                            mhc [i] ++;
+                            if (step >= firstStep_) {
+                                h2PtEtaC [i] -> Fill (eta, pt);
+                                pPtEtaC [i] -> Fill (eta, pt);
+                                pPtCentC [i] -> Fill (cent, pt, eta);
                             }
+                            break;
                         }
                     }
-                }
-
-                if (resMethod_ == kRandomSubevent) {
-                    for (UInt_t j = 0; j < resParticles [i][0].size(); j++) {
-                        if (pid == resParticles [i][0][j]) {
-                            if (eta > etaLim_ [i][0] && eta < etaLim_ [i][1] && pt > ptLim_ [i][0] && pt < ptLim_ [i][1]) {
-                                trackIndex [i].push_back (itrack);
-                            }
-                        }
-                    }
-                }
+				}
 			}
 		}
 
-
-		for (Int_t i = 0; i < nHarmonics; i++)
-		{
-            random_shuffle (trackIndex [i].begin (), trackIndex [i].end ());
-            nSelectedTracks [i] = trackIndex [i].size ();
-
-//            if (nSelectedTracks [i] % 2 == 1) aligner [i] = TMath::Abs (aligner [i] % 2 - 1);
-
-            for (int j = 0; j < 2; j++)
-            {
-                for (Int_t itrack = int (j * 0.5 * nSelectedTracks [i]); itrack < int ((j + 1) * 0.5 * nSelectedTracks [i]); itrack++)
-                {
-                    track = event -> GetTrack (trackIndex [i] [itrack]);
-                    pt = track -> GetPt ();
-                    if (varName_ == "#it{y}") eta = track -> GetRap ();
-                    else eta = track -> GetEta ();
-                    phi = track -> GetPhi ();
-                    charge = track -> GetCharge ();
-                    pid = track -> GetPid ();
-                    p = track -> GetP ();
-
-                    // weight patches
-                    weight = 1.0;
-                    if (pid == kFW) weight = charge;
-//                    if (pid == kPSD) weight = p;
-                    // end of weight patches
-
-                    if (j == 0)
-                    {
-                        QnMan -> AddDataVector (kNDetectors * i + kDetector1A, phi, weight);
-                        subeventFlag [i] [trackIndex [i] [itrack]] = 1;
-                        mha [i] ++;
-                        if (step >= firstStep_)
-                        {
-                            h2PtEtaA [i] -> Fill (eta, pt);
-                            pPtEtaA [i] -> Fill (eta, pt);
-                            pPtCentA [i] -> Fill (cent, pt, eta);
-                        }
-                    }
-                    if (j == 1)
-                    {
-                        QnMan -> AddDataVector (kNDetectors * i + kDetector1B, phi, weight);
-                        subeventFlag [i] [trackIndex [i] [itrack]] = 2;
-                        mhb [i] ++;
-                        if (step >= firstStep_)
-                        {
-                            h2PtEtaB [i] -> Fill (eta, pt);
-                            pPtEtaB [i] -> Fill (eta, pt);
-                            pPtCentB [i] -> Fill (cent, pt, eta);
-                        }
-                    }
-                }
-            }
-            trackIndex [i].clear ();
-		}
-
 		QnMan -> ProcessEvent ();
+
         if (step >= firstStep_) {
 		for (Int_t i = 0; i < nHarmonics; i++) {
 			n = harmonicsMap [i];
@@ -1357,6 +1517,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 
 			if (calculateRP_) {
                 psiRP [i] = event -> GetPsi_n (n);
+                float d = psiRP [i];
 				XRP [i] = TMath::Cos (n * psiRP [i]);
 				YRP [i] = TMath::Sin (n * psiRP [i]);
                 hPsiRP_PsiEP [i] -> Fill (psiRP [i] - psiEP [i]);
@@ -1470,6 +1631,7 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 				x = TMath::Cos (n * phi);
 				y = TMath::Sin (n * phi);
                 if (varName_ == "#it{y}" && eta < 0.0 && n % 2 == 1) {
+                    //eta = TMath::Abs (eta);
                     sign = -1.0;
                 }
                 else sign = 1.0;
@@ -1754,11 +1916,10 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 	if (step >= firstStep_) {
         servHistDir -> Write ();
         histFile -> Close ();
-        testFile -> cd (); // test
-        testTree -> Write (); // test
-        testFile -> Close (); // test
 	}
-
+    testFile -> cd (); // test
+    testTree -> Write (); // test
+    testFile -> Close (); // test
     if (samplingMethod_ == kBootStrapping && step >= firstStep_) sampleFile -> Close ();
 
 //    for (Int_t i = 0; i < nHarmonics; i++) {
@@ -1766,10 +1927,10 @@ void CFlowReconstructor::GetCorrelationsLoop (Int_t step) {
 //	    QnMan -> GetDetectorQnVectorList (Form ("D1B_%i", n)) -> Print ("",-1);
 //	    QnMan -> GetDetectorQnVectorList (Form ("D1C_%i", n)) -> Print ("",-1);
 //	}
+
 	FinalizeQnCorrectionsManager (qnInputFile, qnOutputFile, QnMan);
 	FinalizeQnCorrectionsManager (qnPtInputFile, qnPtOutputFile, QnManPt);
 	FinalizeQnCorrectionsManager (qnEtaInputFile, qnEtaOutputFile, QnManEta);
-
 }
 
 
@@ -1901,7 +2062,7 @@ void CFlowReconstructor::CalculateFlowNoSampling (TProfile *pxX, TH1 *hR, TH1 *h
 void CFlowReconstructor::CalculateFlowNoSampling (TProfile2D *p2xX, TH1 *hR, TH1 *hV, Int_t lowerBin, Int_t higherBin, Int_t sign) {
     Int_t nBinsX = p2xX -> GetNbinsX ();
     Int_t nClasses = higherBin - lowerBin + 1;
-    Float_t xX, R, V, xXerr, Rerr, Verr;
+    Float_t xX, R, V, sample, xXerr, Rerr, Verr;
 
     for (Int_t i = 1; i <= nBinsX; i++) {
         V = 0.0;
@@ -2031,7 +2192,6 @@ void CFlowReconstructor::SetResolutionMethod (Int_t resMethod) {
 }
 
 void CFlowReconstructor::PlotResolution (TH1 *hList1 [12], TH1 *hList2 [12], TH1 *hList3 [9], TH1 *hList4 [9], Int_t nHist) {
-    nHist++;
 //    Int_t markerColors [8] = {1, 2, 3, 4, 6, 8, 9, 46};
 //    Int_t markerStyles [8] = {24, 25, 26, 27, 28, 30, 32, 5};
     Int_t markerColors [7] = {1, 2, 3, 4, 2, 12, 28};
@@ -2295,7 +2455,7 @@ void CFlowReconstructor::GetFlow () {
 }
 void CFlowReconstructor::WritePreviousResults (TDirectory *dir) { // put here anything you like
     dir -> cd ();
-/*
+
     // NA49 40 AGeV
     static const Int_t nCentClasses1 = 6, nCentClasses2 = 5;
     Float_t cent1 [nCentClasses1] = {8.3, 25.0, 41.7, 58.3, 75.0, 91.7};
@@ -2460,71 +2620,6 @@ void CFlowReconstructor::WritePreviousResults (TDirectory *dir) { // put here an
     gV2PtS -> Write ("gV2PtS");
     gV2yN -> Write ("gV2yN");
     gV2yNrefl -> Write ("gV2yNrefl");
-    */
-
-//     HADES
-
-    Float_t cent[4]={5.00,15.00,25.00,35.00};
-    Float_t R1[4]={0.608403,0.815295,0.859224,0.850258};
-
-//    20-30%, pt [0.8, 0.85]
-    Float_t y [15] = {-0.7014168476, -0.6003930372, -0.5012946675, -0.4003768447, -0.2994501895,
-            -0.2023302543, -0.1033246237, -0.002389136275, 0.09855518345, 0.1975519817,
-            0.2965796931, 0.3956162367, 0.4965826372, 0.5975402054, 0.6966606558};
-    Float_t v1y [15] = {-0.4719096162, -0.4345607772, -0.3898104736, -0.3080175174, -0.2299282376,
-                -0.1555544106, -0.07191550436, 0.002470098995, 0.07315202591, 0.1604946086,
-                0.2348743238, 0.3055503625, 0.3669730983, 0.4320995105, 0.467590623};
-
-//    20-30%, y [-0.25, -0.15]
-    Float_t pt [35] = {0.2815450732, 0.3297382177, 0.3809376227, 0.4291514287, 0.4803508337,
-                        0.5315502386, 0.5827703052, 0.6309841112, 0.6791979173, 0.7304283146,
-                        0.7816793735, 0.829924172, 0.8811752309, 0.9324262898, 0.9806400959,
-                        1.028884894, 1.080146284, 1.131418005, 1.179652472, 1.227855947,
-                        1.279179322, 1.330347734, 1.378602864, 1.426909647, 1.478129713,
-                        1.529453088, 1.580714478, 1.628907622, 1.680158681, 1.731244447,
-                        1.779695861, 1.827785698, 1.879026426, 1.929977892, 1.97860493};
-    Float_t v1ptNeg [35] = {-0.08407534247, -0.09246575342, -0.1020547945, -0.1080479452, -0.1176369863,
-                        -0.1272260274, -0.1344178082, -0.1404109589, -0.1464041096, -0.1523972603,
-                        -0.1559931507, -0.158390411, -0.1619863014, -0.1655821918, -0.1715753425,
-                        -0.1739726027, -0.176369863, -0.1775684932, -0.1811643836, -0.1883561644,
-                        -0.1835616438, -0.1967465753, -0.1979452055, -0.1931506849, -0.2003424658,
-                        -0.1955479452, -0.1979452055, -0.2063356164, -0.2099315068, -0.2327054795,
-                        -0.211130137, -0.2315068493, -0.2363013699, -0.2746575342, -0.2327054795};
-    Float_t v1ptPos [35] = {0.08407534247, 0.09246575342, 0.1020547945, 0.1080479452, 0.1176369863,
-                        0.1272260274, 0.1344178082, 0.1404109589, 0.1464041096, 0.1523972603,
-                        0.1559931507, 0.158390411, 0.1619863014, 0.1655821918, 0.1715753425,
-                        0.1739726027, 0.176369863, 0.1775684932, 0.1811643836, 0.1883561644,
-                        0.1835616438, 0.1967465753, 0.1979452055, 0.1931506849, 0.2003424658,
-                        0.1955479452, 0.1979452055, 0.2063356164, 0.2099315068, 0.2327054795,
-                        0.211130137, 0.2315068493, 0.2363013699, 0.2746575342, 0.2327054795};
-    Float_t v1pterr [35] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-                    0., 0., 0., 0., 0.004794520548,
-                    0.007191780822, 0.008390410959, 0.009589041096, 0.01078767123, 0.01318493151,
-                    0.01438356164, 0.01797945205, 0.01917808219, 0.02397260274, 0.03116438356};
-//    20-30%, y [-0.25, -0.15]
-//    Double_t xxMCEPv1pt7cent2[35]  = {/* 225.000000 , 275.000000 , 325.000000 ,*/ 375.000000 , 425.000000 ,
-//                                        475.000000 , 525.000000 , 575.000000 , 625.000000 , 675.000000 ,
-//                                        725.000000 , 775.000000 , 825.000000 , 875.000000 , 925.000000 ,
-//                                        975.000000 , 1025.000000 , 1075.000000 , 1125.000000 , 1175.000000 ,
-//                                        1225.000000 , 1275.000000 , 1325.000000 , 1375.000000 , 1425.000000 ,
-//                                        1475.000000 , 1525.000000 , 1575.000000 , 1625.000000 , 1675.000000 ,
-//                                        1725.000000 , 1775.000000 , 1825.000000 , 1875.000000 , 1925.000000 };
-//Double_t yyMCEPv1pt5cent2[37]  = {/* -0.059950, -0.065955 ,*/ -0.072304 , -0.079803 , -0.087845 , -0.093261 , -0.101308 , -0.109012 , -0.114637 , -0.120210 , -0.125461 , -0.130932 , -0.132920 , -0.135880 , -0.139478 , -0.141474 , -0.147513 , -0.148622 , -0.150889 , -0.152074 , -0.155630 , -0.161061 , -0.158077 , -0.167572 , -0.169543 , -0.165504 , -0.172074 , -0.167301 , -0.169460 , -0.176439 , -0.179716 , -0.199085 , -0.181666 , -0.198111 , -0.202400 , -0.235728 , -0.199348 };
-//   Double_t yyerrMCEPv1pt5cent2[37]  = {/* 0.001135, 0.000649 ,*/ 0.000575 , 0.000545 , 0.000530 , 0.000527 , 0.000534 , 0.000550 , 0.000582 , 0.000626 , 0.000675 , 0.000729 , 0.000784 , 0.000856 , 0.000948 , 0.001065 , 0.001199 , 0.001369 , 0.001560 , 0.001809 , 0.002094 , 0.002450 , 0.002856 , 0.003348 , 0.003903 , 0.004606 , 0.005415 , 0.006459 , 0.007631 , 0.008880 , 0.010555 , 0.012219 , 0.014791 , 0.017117 , 0.019458 , 0.024343 , 0.031108 };
-
-
-
-
-
-    TGraphErrors gR1cent (4, cent, R1, 0, 0);
-    TGraphErrors gV1y (15, y, v1y, 0, 0);
-    TGraphErrors gV1ptNeg (35, pt, v1ptNeg, 0, v1pterr);
-    TGraphErrors gV1ptPos (35, pt, v1ptPos, 0, v1pterr);
-
-    gR1cent.Write ("gR1cent");
-    gV1y.Write ("gV1y");
-    gV1ptNeg.Write ("gV1ptNeg");
-    gV1ptPos.Write ("gV1ptPos");
 }
 
 void CFlowReconstructor::GetFlowLoop (Int_t step) {
@@ -2552,8 +2647,8 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
         centHigh_ = centMax_;
     }
     if (harmonicFunctionSet) FillReferenceHist ();
-	Int_t n;
-//	Float_t R, Rerr, cent, pt, eta, bsIndex, shift, sign;
+	Int_t n, mh;
+	Float_t R, Rerr, cent, pt, eta, bsIndex, shift, sign;
 
 // test
 //    Float_t QQ [3][2][2]; // [AB, AC, BC][x, y][x, y]
@@ -3248,7 +3343,7 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
             p2VyXaEtaCent_SP.push_back (new TProfile2D (Form ("p2V%iyXaEtaCent_SP", n), Form ("V_{%i, a}^{yX, SP};", n) + varName_ + ";sample", nBinsEta_, etaMin_, etaMax_, nBinsBS_, 0, nBinsBS_));
             p2VyXbEtaCent_SP.push_back (new TProfile2D (Form ("p2V%iyXbEtaCent_SP", n), Form ("V_{%i, b}^{yX, SP};", n) + varName_ + ";sample", nBinsEta_, etaMin_, etaMax_, nBinsBS_, 0, nBinsBS_));
             p2VyXcEtaCent_SP.push_back (new TProfile2D (Form ("p2V%iyXcEtaCent_SP", n), Form ("V_{%i, c}^{yX, SP};", n) + varName_ + ";sample", nBinsEta_, etaMin_, etaMax_, nBinsBS_, 0, nBinsBS_));
-            hVxaPtCent_SP.push_back (new TH1F (Form ("hV%ixaPtCent_SP", n), Form ("V_{%i, a}^{x, SP}; P_{T} [GeV/c]; V_{%i}^{x}", n, n), nBinsPt_, ptMin_, ptMax_));
+            hVxaPtCent_SP.push_back (new TH1F (Form ("hV%ixaPtCent_SP", n), Form ("V_{%i, a}^{x, SP} (over centrality); P_{T} [GeV/c]; V_{%i}^{x}", n, n), nBinsPt_, ptMin_, ptMax_));
             hVxbPtCent_SP.push_back (new TH1F (Form ("hV%ixbPtCent_SP", n), Form ("V_{%i, b}^{x, SP}; P_{T} [GeV/c]; V_{%i}^{x}", n, n), nBinsPt_, ptMin_, ptMax_));
             hVxcPtCent_SP.push_back (new TH1F (Form ("hV%ixcPtCent_SP", n), Form ("V_{%i, c}^{x, SP}; P_{T} [GeV/c]; V_{%i}^{x}", n, n), nBinsPt_, ptMin_, ptMax_));
             hVxPtCent_SP.push_back (new TH1F (Form ("hV%ixPtCent_SP", n), Form ("V_{%i}^{x, SP}; P_{T} [GeV/c]; V_{%i}^{x}", n, n), nBinsPt_, ptMin_, ptMax_));
@@ -5099,6 +5194,9 @@ void CFlowReconstructor::GetFlowLoop (Int_t step) {
         }
 
         stepDir -> Write ();
+//        corrDir -> Write ();
+//        resDir -> Write ();
+//        flowDir -> Write ();
 
 //    testFile -> cd (); // test
 //    testTree -> Write (); // test
@@ -5173,494 +5271,494 @@ void CFlowReconstructor::SetReferenceOption (Int_t harmonic, TString option) {
 }
 
 
-//void CFlowReconstructor::Reference (Float_t ptLow, Float_t ptHigh, Float_t etaLow, Float_t etaHigh) {
-//	Float_t shift1 [5] = {0.4, 0.3, 0.2, 0.1, 0.15}; // SP, x & SP, y
-//	Float_t shift2 [5] = {0.35, 0.25, 0.15, 0.05, 0.15}; // EP & RP
-//	Int_t markerStyle [5] = {24, 25, 26, 27, 20};
-//	Float_t markerSize [5] = {1.0, 0.5, 1.0, 1.0, 0.75};
-//	Color_t yColor = kGreen;
-//	Color_t xColor = kBlue;
-//	Color_t refColor = kRed;
-//	Color_t RPColor = kRed;
-//	Color_t EPColor = kViolet;
-//
-//	TCanvas* c1;
-//	TDirectory* dir [4];
-//
-//	Int_t n, size, minPtBin, minEtaBin, maxPtBin, maxEtaBin, nSteps = 3;
-//	TH2D *h2x, *h2y, *h2RP, *h2EP, *h2Ref;
-//	TH1D *hRefPt, *hRefEta, *hx, *hy, *hEP, *hRP, *newHist;
-//	vector <TH1D*> *allStepsPt, *allStepsEta, *allStepsPtDiv, *allStepsEtaDiv;
-//	TLegend *leg1, *leg2;
-//	THStack *histStack;
-//	TH1F* servHist [4];
-//	TF1* unityPt = new TF1 ("unityPt", "1", ptMin_, ptMax_);
-//	TF1* unityEta = new TF1 ("unityEta", "1", etaMin_, etaMax_);
-//	if (uniformSet) nSteps = 4;
-//
-//	allStepsPt = new vector <TH1D*> [nHarmonics];
-//	allStepsEta = new vector <TH1D*> [nHarmonics];
-//	allStepsPtDiv = new vector <TH1D*> [nHarmonics];
-//	allStepsEtaDiv = new vector <TH1D*> [nHarmonics];
-////	c1 = new TCanvas ("c1","c1", 800, 600);
-//	c1 = new TCanvas ("c1","c1", 640, 480);
-//	gStyle -> SetLegendBorderSize (0);
-//
-//
-//	TFile *histFile = new TFile (histFileName_ + "_flow.root", "READ");
-//	TFile *outputFile = new TFile (histFileName_ + "_ref.root", "RECREATE");
-//
-//	for (Int_t i = 0; i < nSteps; i++) {
-//		dir [i] = outputFile -> mkdir (dirName [i]);
-//		servHist [i] = new TH1F ();
-//		servHist [i] -> SetMarkerStyle (markerStyle [i]);
-//		servHist [i] -> SetMarkerSize (markerSize [i]);
-//		servHist [i] -> SetMarkerColor (kBlack);
-//	}
-//
-//	for (Int_t i = 0; i < nHarmonics; i++) {
-//		n = harmonicsMap [i];
-//		TString option = refOptions [n];
-//		cout << "Reference option " << n << ": " << option << endl;
-//		if (harmonicFunctionSet) {
-////			h2Ref = (TH2D*) histFile -> Get (dirName [4] + Form ("/h2V%iPtEtaRef", n));
-////			minPtBin = h2Ref -> GetXaxis () -> FindBin (ptLow);
-////			maxPtBin = h2Ref -> GetXaxis () -> FindBin (ptHigh);
-////			minEtaBin = h2Ref -> GetYaxis () -> FindBin (etaLow);
-////			maxEtaBin = h2Ref -> GetYaxis () -> FindBin (etaHigh);
-////			h2Ref -> SetFillColor (refColor);
-////			h2Ref -> SetMarkerStyle (markerStyle [4]);
-////			h2Ref -> SetMarkerSize (markerSize [4]);
-////			h2Ref -> SetMarkerColor (refColor);
-//			hRefPt = (TH1D*) histFile -> Get (dirName [4] + Form ("/hV%iPtRef", n));
-//			//hRefPt = h2Ref -> ProjectionX ("hRefPt", minEtaBin, maxEtaBin);
-//			//hRefPt -> Scale (1.0 / (maxEtaBin - minEtaBin));
-//			hRefPt -> Sumw2 ();
-//			hRefPt -> SetMarkerStyle (markerStyle [4]);
-//			hRefPt -> SetMarkerSize (markerSize [4]);
-//			hRefPt -> SetMarkerColor (refColor);
-//			hRefPt -> SetLineColor (refColor);
-//			allStepsPt [i].push_back (hRefPt);
-//			hRefEta = (TH1D*) histFile -> Get (dirName [4] + Form ("/hV%iEtaRef", n));
-//			//hRefEta = h2Ref -> ProjectionY ("hRefEta", minPtBin, maxPtBin);
-//			//hRefEta -> Scale (1.0 / (maxPtBin - minPtBin));
-//			hRefEta -> Sumw2 ();
-//			hRefEta -> SetMarkerStyle (markerStyle [4]);
-//			hRefEta -> SetMarkerSize (markerSize [4]);
-//			hRefEta -> SetMarkerColor (refColor);
-//			hRefEta -> SetLineColor (refColor);
-//			allStepsEta [i].push_back (hRefEta);
-//		}
-//
-//		else {
-////			h2x = (TH2D*) histFile -> Get (dirName [0] + Form ("/h2V%ixPtEta_SP", n));
-////			minPtBin = h2x -> GetXaxis () -> FindBin (ptLow);
-////			maxPtBin = h2x -> GetXaxis () -> FindBin (ptHigh);
-////			minEtaBin = h2x -> GetYaxis () -> FindBin (etaLow);
-////			maxEtaBin = h2x -> GetYaxis () -> FindBin (etaHigh);
-//		}
-//		//printf ("%i\t%i\t%i\t%i\n", minPtBin, maxPtBin, minEtaBin, maxEtaBin); // test
-//		//Loop over correction steps
-//		for (int j = 0; j < nSteps; j++) {
-//			dir [j] -> cd ();
-////			h2x = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%ixPtEta_SP", n));
-////			h2y = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%iyPtEta_SP", n));
-////			h2EP = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%iPtEta_EP", n));
-//
-//			hx = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%ixPt_SP", n));
-////			hx = h2x -> ProjectionX ("hx", minEtaBin, maxEtaBin, "e");
-////			hx -> Scale (1.0 / (maxEtaBin - minEtaBin));
-//			hy = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iyPt_SP", n));
-////			hy = h2y -> ProjectionX ("hy", minEtaBin, maxEtaBin, "e");
-////			hy -> Scale (1.0 / (maxEtaBin - minEtaBin));
-//			hEP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iPt_EP", n));
-////			hEP = h2EP -> ProjectionX ("hEP", minEtaBin, maxEtaBin, "e");
-////			hEP -> Scale (1.0 / (maxEtaBin - minEtaBin));
-//
-//            if (option == "average") hx -> Add (hx, hy, 0.5, 0.5);
-//
-//			if (uniformSet) {
-//				hRP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iPt_RP", n));
-////				h2RP = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%iPtEta_RP", n));
-////				hRP = h2RP -> ProjectionX ("hRP", minEtaBin, maxEtaBin, "e");
-////				hRP -> Scale (1.0 / (maxEtaBin - minEtaBin));
+void CFlowReconstructor::Reference (Float_t ptLow, Float_t ptHigh, Float_t etaLow, Float_t etaHigh) {
+	Float_t shift1 [5] = {0.4, 0.3, 0.2, 0.1, 0.15}; // SP, x & SP, y
+	Float_t shift2 [5] = {0.35, 0.25, 0.15, 0.05, 0.15}; // EP & RP
+	Int_t markerStyle [5] = {24, 25, 26, 27, 20};
+	Float_t markerSize [5] = {1.0, 0.5, 1.0, 1.0, 0.75};
+	Color_t yColor = kGreen;
+	Color_t xColor = kBlue;
+	Color_t refColor = kRed;
+	Color_t RPColor = kRed;
+	Color_t EPColor = kViolet;
+
+	TCanvas* c1;
+	TDirectory* dir [4];
+
+	Int_t n, size, minPtBin, minEtaBin, maxPtBin, maxEtaBin, nSteps = 3;
+	TH2D *h2x, *h2y, *h2RP, *h2EP, *h2Ref;
+	TH1D *hRefPt, *hRefEta, *hx, *hy, *hEP, *hRP, *newHist;
+	vector <TH1D*> *allStepsPt, *allStepsEta, *allStepsPtDiv, *allStepsEtaDiv;
+	TLegend *leg1, *leg2;
+	THStack *histStack;
+	TH1F* servHist [4];
+	TF1* unityPt = new TF1 ("unityPt", "1", ptMin_, ptMax_);
+	TF1* unityEta = new TF1 ("unityEta", "1", etaMin_, etaMax_);
+	if (uniformSet) nSteps = 4;
+
+	allStepsPt = new vector <TH1D*> [nHarmonics];
+	allStepsEta = new vector <TH1D*> [nHarmonics];
+	allStepsPtDiv = new vector <TH1D*> [nHarmonics];
+	allStepsEtaDiv = new vector <TH1D*> [nHarmonics];
+//	c1 = new TCanvas ("c1","c1", 800, 600);
+	c1 = new TCanvas ("c1","c1", 640, 480);
+	gStyle -> SetLegendBorderSize (0);
+
+
+	TFile *histFile = new TFile (histFileName_ + "_flow.root", "READ");
+	TFile *outputFile = new TFile (histFileName_ + "_ref.root", "RECREATE");
+
+	for (Int_t i = 0; i < nSteps; i++) {
+		dir [i] = outputFile -> mkdir (dirName [i]);
+		servHist [i] = new TH1F ();
+		servHist [i] -> SetMarkerStyle (markerStyle [i]);
+		servHist [i] -> SetMarkerSize (markerSize [i]);
+		servHist [i] -> SetMarkerColor (kBlack);
+	}
+
+	for (Int_t i = 0; i < nHarmonics; i++) {
+		n = harmonicsMap [i];
+		TString option = refOptions [n];
+		cout << "Reference option " << n << ": " << option << endl;
+		if (harmonicFunctionSet) {
+//			h2Ref = (TH2D*) histFile -> Get (dirName [4] + Form ("/h2V%iPtEtaRef", n));
+//			minPtBin = h2Ref -> GetXaxis () -> FindBin (ptLow);
+//			maxPtBin = h2Ref -> GetXaxis () -> FindBin (ptHigh);
+//			minEtaBin = h2Ref -> GetYaxis () -> FindBin (etaLow);
+//			maxEtaBin = h2Ref -> GetYaxis () -> FindBin (etaHigh);
+//			h2Ref -> SetFillColor (refColor);
+//			h2Ref -> SetMarkerStyle (markerStyle [4]);
+//			h2Ref -> SetMarkerSize (markerSize [4]);
+//			h2Ref -> SetMarkerColor (refColor);
+			hRefPt = (TH1D*) histFile -> Get (dirName [4] + Form ("/hV%iPtRef", n));
+			//hRefPt = h2Ref -> ProjectionX ("hRefPt", minEtaBin, maxEtaBin);
+			//hRefPt -> Scale (1.0 / (maxEtaBin - minEtaBin));
+			hRefPt -> Sumw2 ();
+			hRefPt -> SetMarkerStyle (markerStyle [4]);
+			hRefPt -> SetMarkerSize (markerSize [4]);
+			hRefPt -> SetMarkerColor (refColor);
+			hRefPt -> SetLineColor (refColor);
+			allStepsPt [i].push_back (hRefPt);
+			hRefEta = (TH1D*) histFile -> Get (dirName [4] + Form ("/hV%iEtaRef", n));
+			//hRefEta = h2Ref -> ProjectionY ("hRefEta", minPtBin, maxPtBin);
+			//hRefEta -> Scale (1.0 / (maxPtBin - minPtBin));
+			hRefEta -> Sumw2 ();
+			hRefEta -> SetMarkerStyle (markerStyle [4]);
+			hRefEta -> SetMarkerSize (markerSize [4]);
+			hRefEta -> SetMarkerColor (refColor);
+			hRefEta -> SetLineColor (refColor);
+			allStepsEta [i].push_back (hRefEta);
+		}
+
+		else {
+//			h2x = (TH2D*) histFile -> Get (dirName [0] + Form ("/h2V%ixPtEta_SP", n));
+//			minPtBin = h2x -> GetXaxis () -> FindBin (ptLow);
+//			maxPtBin = h2x -> GetXaxis () -> FindBin (ptHigh);
+//			minEtaBin = h2x -> GetYaxis () -> FindBin (etaLow);
+//			maxEtaBin = h2x -> GetYaxis () -> FindBin (etaHigh);
+		}
+		//printf ("%i\t%i\t%i\t%i\n", minPtBin, maxPtBin, minEtaBin, maxEtaBin); // test
+		//Loop over correction steps
+		for (int j = 0; j < nSteps; j++) {
+			dir [j] -> cd ();
+//			h2x = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%ixPtEta_SP", n));
+//			h2y = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%iyPtEta_SP", n));
+//			h2EP = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%iPtEta_EP", n));
+
+			hx = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%ixPt_SP", n));
+//			hx = h2x -> ProjectionX ("hx", minEtaBin, maxEtaBin, "e");
+//			hx -> Scale (1.0 / (maxEtaBin - minEtaBin));
+			hy = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iyPt_SP", n));
+//			hy = h2y -> ProjectionX ("hy", minEtaBin, maxEtaBin, "e");
+//			hy -> Scale (1.0 / (maxEtaBin - minEtaBin));
+			hEP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iPt_EP", n));
+//			hEP = h2EP -> ProjectionX ("hEP", minEtaBin, maxEtaBin, "e");
+//			hEP -> Scale (1.0 / (maxEtaBin - minEtaBin));
+
+            if (option == "average") hx -> Add (hx, hy, 0.5, 0.5);
+
+			if (uniformSet) {
+				hRP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iPt_RP", n));
+//				h2RP = (TH2D*) histFile -> Get (dirName [j] + Form ("/h2V%iPtEta_RP", n));
+//				hRP = h2RP -> ProjectionX ("hRP", minEtaBin, maxEtaBin, "e");
+//				hRP -> Scale (1.0 / (maxEtaBin - minEtaBin));
+				hRP -> SetMarkerColor (RPColor);
+				hRP -> SetLineColor (RPColor);
+				hRP -> SetMarkerStyle (markerStyle [j]);
+				hRP -> SetMarkerSize (markerSize [j]);
+			}
+
+			gStyle -> SetOptStat (0);
+			hx -> SetLineColor (xColor);
+			hx -> SetMarkerColor (xColor);
+			hx -> SetMarkerStyle (markerStyle [j]);
+			hx -> SetMarkerSize (markerSize [j]);
+			hy -> SetLineColor (yColor);
+			hy -> SetMarkerColor (yColor);
+			hy -> SetMarkerStyle (markerStyle [j]);
+			hy -> SetMarkerSize (markerSize [j]);
+			hEP -> SetMarkerColor (EPColor);
+			hEP -> SetLineColor (EPColor);
+			hEP -> SetMarkerStyle (markerStyle [j]);
+			hEP -> SetMarkerSize (markerSize [j]);
+
+			leg1 = new TLegend (0.7, 0.2, 0.85, 0.5);
+			leg1 -> SetFillColor (0);
+			leg1 -> SetTextSize(0.04);
+            if (option == "" || option == "x") leg1 -> AddEntry (hx, methodName [1], "p");
+            if (option == "" || option == "y") leg1 -> AddEntry (hy, methodName [2], "p");
+			if (option == "average") leg1 -> AddEntry (hx, methodName [5], "p");
+			leg1 -> AddEntry (hEP, methodName [3], "p");
+			if (uniformSet) leg1 -> AddEntry (hRP, methodName [4], "p");
+			if (harmonicFunctionSet) leg1 -> AddEntry (hRefPt, methodName [0], "p");
+
+			newHist = (TH1D*) hx -> Clone("hV%ixPt_");
+			HistShift (newHist, shift1 [j]);
+			if (option == "" || option == "average" || option == "x") allStepsPt [i].push_back (newHist);
+			newHist = (TH1D*) hy -> Clone("hV%iyPt_");
+			HistShift (newHist, -shift1 [j]);
+			if (option == "" || option == "y") allStepsPt [i].push_back (newHist);
+			newHist = (TH1D*) hEP -> Clone("hV%iPt_EP_");
+			HistShift (newHist, -shift2 [j]);
+			allStepsPt [i].push_back (newHist);
+			if (uniformSet) {
+				if (j == 0 || j == 3) {
+					newHist = (TH1D*) hRP -> Clone("hV%iPt_RP_");
+					HistShift (newHist, shift2 [j]);
+					allStepsPt [i].push_back (newHist);
+				}
+				HistShift (hRP, 0.5 * shift2 [4]);
+			}
+			HistShift (hx, shift1 [4]);
+			HistShift (hy, -shift1 [4]);
+			HistShift (hEP, -0.5 * shift2 [4]);
+
+			histStack = new THStack("histStack", Form ("V_{%i} averaged over ", n) + varName_ + Form (" #in [%.1f,%.1f] versus P_{T} (", etaLow, etaHigh) + stepName [j] + Form (");P_{T} [GeV/c];V_{%i}", n));
+			if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
+			if (option == "" || option == "y") histStack -> Add (hy);
+			histStack -> Add (hEP);
+			if (uniformSet) histStack -> Add (hRP);
+			if (harmonicFunctionSet) histStack -> Add (hRefPt);
+			histStack -> Draw ("nostack p e1X0");
+			leg1 -> Draw ();
+			c1 -> Write (Form ("hV%iPt", n));
+			delete histStack;
+
+			if (harmonicFunctionSet) {
+				HistShift (hx, -shift1 [4]);
+				HistShift (hy, shift1 [4]);
+				HistShift (hRP, -0.5 * shift2 [4]);
+				HistShift (hEP, 0.5 * shift2 [4]);
+
+				hx -> Divide (hRefPt);
+				hy -> Divide (hRefPt);
+				hEP -> Divide (hRefPt);
+				hRP -> Divide (hRefPt);
+
+				leg2 = new TLegend (0.7, 0.2, 0.85, 0.5);
+				leg2 -> SetTextSize(0.04);
+				if (option == "" || option == "x") leg2 -> AddEntry (hx, methodName [1], "p");
+				if (option == "" || option == "y") leg2 -> AddEntry (hy, methodName [2], "p");
+                if (option == "average") leg2 -> AddEntry (hx, methodName [5], "p");
+				leg2 -> AddEntry (hEP, methodName [3], "p");
+				leg2 -> AddEntry (hRP, methodName [4], "p");
+				leg2 -> SetFillColor (0);
+
+				newHist = (TH1D*) hx -> Clone("hV%ixPt/Ref_");
+				HistShift (newHist, shift1 [j]);
+				if (option == "" || option == "average" || option == "x") allStepsPtDiv [i].push_back (newHist);
+				newHist = (TH1D*) hy -> Clone("hV%iyPt/Ref_");
+				HistShift (newHist, -shift1 [j]);
+				if (option == "" || option == "y") allStepsPtDiv [i].push_back (newHist);
+				newHist = (TH1D*) hEP -> Clone("hV%iPt_EP/Ref_");
+				HistShift (newHist, -shift2 [j]);
+				allStepsPtDiv [i].push_back (newHist);
+				if (j == 0 || j == 3) {
+					newHist = (TH1D*) hRP -> Clone("hV%iPt_RP/Ref_");
+					HistShift (newHist, shift2 [j]);
+					allStepsPtDiv [i].push_back (newHist);
+				}
+				HistShift (hx, shift1 [4]);
+				HistShift (hy, -shift1 [4]);
+				HistShift (hRP, 0.5 * shift2 [4]);
+				HistShift (hEP, -0.5 * shift2 [4]);
+
+				histStack = new THStack ("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus P_{T} (", n, n) + stepName [j] + ")");
+				if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
+				if (option == "" || option == "y") histStack -> Add (hy);
+				histStack -> Add (hRP);
+				histStack -> Add (hEP);
+				histStack -> Draw ("nostack p e1X0");
+				histStack -> GetXaxis () -> SetTitle ("P_{T} [GeV/c]");
+				histStack -> GetYaxis () -> SetTitle (Form ("V_{%i} / V_{%i}^{ref}", n, n));
+				leg2 -> Draw ();
+				unityPt -> Draw ("same");
+				c1 -> Write (Form ("hV%iPt/Ref", n));
+				delete histStack;
+			}
+
+			hx = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%ixEta_SP", n));
+			hy = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iyEta_SP", n));
+			hEP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iEta_EP", n));
+
+//			hx = h2x -> ProjectionY ("hx", minPtBin, maxPtBin, "e");
+//			hx -> Scale (1.0 / (maxPtBin - minPtBin));
+//			hy = h2y -> ProjectionY ("hy", minPtBin, maxPtBin, "e");
+//			hy -> Scale (1.0 / (maxPtBin - minPtBin));
+//			hEP = h2EP -> ProjectionY ("hEP", minPtBin, maxPtBin, "e");
+//			hEP -> Scale (1.0 / (maxPtBin - minPtBin));
+
+			if (option == "average") hx -> Add (hx, hy, 0.5, 0.5);
+
+			if (uniformSet) {
+//				hRP = h2RP -> ProjectionY ("hRP", minPtBin, maxPtBin, "e");
+//				hRP -> Scale (1.0 / (maxPtBin - minPtBin));
 //				hRP -> SetMarkerColor (RPColor);
 //				hRP -> SetLineColor (RPColor);
 //				hRP -> SetMarkerStyle (markerStyle [j]);
 //				hRP -> SetMarkerSize (markerSize [j]);
-//			}
-//
-//			gStyle -> SetOptStat (0);
-//			hx -> SetLineColor (xColor);
-//			hx -> SetMarkerColor (xColor);
-//			hx -> SetMarkerStyle (markerStyle [j]);
-//			hx -> SetMarkerSize (markerSize [j]);
-//			hy -> SetLineColor (yColor);
-//			hy -> SetMarkerColor (yColor);
-//			hy -> SetMarkerStyle (markerStyle [j]);
-//			hy -> SetMarkerSize (markerSize [j]);
-//			hEP -> SetMarkerColor (EPColor);
-//			hEP -> SetLineColor (EPColor);
-//			hEP -> SetMarkerStyle (markerStyle [j]);
-//			hEP -> SetMarkerSize (markerSize [j]);
-//
-//			leg1 = new TLegend (0.7, 0.2, 0.85, 0.5);
-//			leg1 -> SetFillColor (0);
-//			leg1 -> SetTextSize(0.04);
-//            if (option == "" || option == "x") leg1 -> AddEntry (hx, methodName [1], "p");
-//            if (option == "" || option == "y") leg1 -> AddEntry (hy, methodName [2], "p");
-//			if (option == "average") leg1 -> AddEntry (hx, methodName [5], "p");
-//			leg1 -> AddEntry (hEP, methodName [3], "p");
-//			if (uniformSet) leg1 -> AddEntry (hRP, methodName [4], "p");
-//			if (harmonicFunctionSet) leg1 -> AddEntry (hRefPt, methodName [0], "p");
-//
-//			newHist = (TH1D*) hx -> Clone("hV%ixPt_");
-//			HistShift (newHist, shift1 [j]);
-//			if (option == "" || option == "average" || option == "x") allStepsPt [i].push_back (newHist);
-//			newHist = (TH1D*) hy -> Clone("hV%iyPt_");
-//			HistShift (newHist, -shift1 [j]);
-//			if (option == "" || option == "y") allStepsPt [i].push_back (newHist);
-//			newHist = (TH1D*) hEP -> Clone("hV%iPt_EP_");
-//			HistShift (newHist, -shift2 [j]);
-//			allStepsPt [i].push_back (newHist);
-//			if (uniformSet) {
-//				if (j == 0 || j == 3) {
-//					newHist = (TH1D*) hRP -> Clone("hV%iPt_RP_");
-//					HistShift (newHist, shift2 [j]);
-//					allStepsPt [i].push_back (newHist);
-//				}
-//				HistShift (hRP, 0.5 * shift2 [4]);
-//			}
-//			HistShift (hx, shift1 [4]);
-//			HistShift (hy, -shift1 [4]);
-//			HistShift (hEP, -0.5 * shift2 [4]);
-//
-//			histStack = new THStack("histStack", Form ("V_{%i} averaged over ", n) + varName_ + Form (" #in [%.1f,%.1f] versus P_{T} (", etaLow, etaHigh) + stepName [j] + Form (");P_{T} [GeV/c];V_{%i}", n));
-//			if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
-//			if (option == "" || option == "y") histStack -> Add (hy);
-//			histStack -> Add (hEP);
-//			if (uniformSet) histStack -> Add (hRP);
-//			if (harmonicFunctionSet) histStack -> Add (hRefPt);
-//			histStack -> Draw ("nostack p e1X0");
-//			leg1 -> Draw ();
-//			c1 -> Write (Form ("hV%iPt", n));
-//			delete histStack;
-//
-//			if (harmonicFunctionSet) {
-//				HistShift (hx, -shift1 [4]);
-//				HistShift (hy, shift1 [4]);
-//				HistShift (hRP, -0.5 * shift2 [4]);
-//				HistShift (hEP, 0.5 * shift2 [4]);
-//
-//				hx -> Divide (hRefPt);
-//				hy -> Divide (hRefPt);
-//				hEP -> Divide (hRefPt);
-//				hRP -> Divide (hRefPt);
-//
-//				leg2 = new TLegend (0.7, 0.2, 0.85, 0.5);
-//				leg2 -> SetTextSize(0.04);
-//				if (option == "" || option == "x") leg2 -> AddEntry (hx, methodName [1], "p");
-//				if (option == "" || option == "y") leg2 -> AddEntry (hy, methodName [2], "p");
-//                if (option == "average") leg2 -> AddEntry (hx, methodName [5], "p");
-//				leg2 -> AddEntry (hEP, methodName [3], "p");
-//				leg2 -> AddEntry (hRP, methodName [4], "p");
-//				leg2 -> SetFillColor (0);
-//
-//				newHist = (TH1D*) hx -> Clone("hV%ixPt/Ref_");
-//				HistShift (newHist, shift1 [j]);
-//				if (option == "" || option == "average" || option == "x") allStepsPtDiv [i].push_back (newHist);
-//				newHist = (TH1D*) hy -> Clone("hV%iyPt/Ref_");
-//				HistShift (newHist, -shift1 [j]);
-//				if (option == "" || option == "y") allStepsPtDiv [i].push_back (newHist);
-//				newHist = (TH1D*) hEP -> Clone("hV%iPt_EP/Ref_");
-//				HistShift (newHist, -shift2 [j]);
-//				allStepsPtDiv [i].push_back (newHist);
-//				if (j == 0 || j == 3) {
-//					newHist = (TH1D*) hRP -> Clone("hV%iPt_RP/Ref_");
-//					HistShift (newHist, shift2 [j]);
-//					allStepsPtDiv [i].push_back (newHist);
-//				}
-//				HistShift (hx, shift1 [4]);
-//				HistShift (hy, -shift1 [4]);
-//				HistShift (hRP, 0.5 * shift2 [4]);
-//				HistShift (hEP, -0.5 * shift2 [4]);
-//
-//				histStack = new THStack ("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus P_{T} (", n, n) + stepName [j] + ")");
-//				if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
-//				if (option == "" || option == "y") histStack -> Add (hy);
-//				histStack -> Add (hRP);
-//				histStack -> Add (hEP);
-//				histStack -> Draw ("nostack p e1X0");
-//				histStack -> GetXaxis () -> SetTitle ("P_{T} [GeV/c]");
-//				histStack -> GetYaxis () -> SetTitle (Form ("V_{%i} / V_{%i}^{ref}", n, n));
-//				leg2 -> Draw ();
-//				unityPt -> Draw ("same");
-//				c1 -> Write (Form ("hV%iPt/Ref", n));
-//				delete histStack;
-//			}
-//
-//			hx = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%ixEta_SP", n));
-//			hy = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iyEta_SP", n));
-//			hEP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iEta_EP", n));
-//
-////			hx = h2x -> ProjectionY ("hx", minPtBin, maxPtBin, "e");
-////			hx -> Scale (1.0 / (maxPtBin - minPtBin));
-////			hy = h2y -> ProjectionY ("hy", minPtBin, maxPtBin, "e");
-////			hy -> Scale (1.0 / (maxPtBin - minPtBin));
-////			hEP = h2EP -> ProjectionY ("hEP", minPtBin, maxPtBin, "e");
-////			hEP -> Scale (1.0 / (maxPtBin - minPtBin));
-//
-//			if (option == "average") hx -> Add (hx, hy, 0.5, 0.5);
-//
-//			if (uniformSet) {
-////				hRP = h2RP -> ProjectionY ("hRP", minPtBin, maxPtBin, "e");
-////				hRP -> Scale (1.0 / (maxPtBin - minPtBin));
-////				hRP -> SetMarkerColor (RPColor);
-////				hRP -> SetLineColor (RPColor);
-////				hRP -> SetMarkerStyle (markerStyle [j]);
-////				hRP -> SetMarkerSize (markerSize [j]);
-//
-//				hRP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iEta_RP", n));
-//				hRP -> SetMarkerColor (RPColor);
-//				hRP -> SetLineColor (RPColor);
-//				hRP -> SetMarkerStyle (markerStyle [j]);
-//				hRP -> SetMarkerSize (markerSize [j]);
-//			}
-//
-//			gStyle -> SetOptStat (0);
-//			hx -> SetLineColor (xColor);
-//			hx -> SetMarkerColor (xColor);
-//			hx -> SetMarkerStyle (markerStyle [j]);
-//			hx -> SetMarkerSize (markerSize [j]);
-//			hy -> SetLineColor (yColor);
-//			hy -> SetMarkerColor (yColor);
-//			hy -> SetMarkerStyle (markerStyle [j]);
-//			hy -> SetMarkerSize (markerSize [j]);
-//			hEP -> SetMarkerColor (EPColor);
-//			hEP -> SetLineColor (EPColor);
-//			hEP -> SetMarkerStyle (markerStyle [j]);
-//			hEP -> SetMarkerSize (markerSize [j]);
-//
-//			newHist = (TH1D*) hx -> Clone("hV%ixEta_");
-//			HistShift (newHist, shift1 [j]);
-//			if (option == "" || option == "average" || option == "x") allStepsEta [i].push_back (newHist);
-//			newHist = (TH1D*) hy -> Clone("hV%iyEta_");
-//			HistShift (newHist, -shift1 [j]);
-//			if (option == "" || option == "y") allStepsEta [i].push_back (newHist);
-//			newHist = (TH1D*) hEP -> Clone("hV%iEta_EP_");
-//			HistShift (newHist, -shift2 [j]);
-//			allStepsEta [i].push_back (newHist);
-//			if (uniformSet) {
-//				if (j == 0 || j == 3) {
-//					newHist = (TH1D*) hRP -> Clone("hV%iEta_RP_");
-//					HistShift (newHist, shift2 [j]);
-//					allStepsEta [i].push_back (newHist);
-//				}
-//				HistShift (hRP, 0.5 * shift2 [4]);
-//			}
-//			HistShift (hx, shift1 [4]);
-//			HistShift (hy, -shift1 [4]);
-//			HistShift (hEP, -0.5 * shift2 [4]);
-//
-//			histStack = new THStack("histStack", Form ("V_{%i} averaged over P_{T} #in [%.1f,%.1f] versus ", n, ptLow, ptHigh) + varName_ + " (" + stepName [j] + ");" + varName_ + Form (";V_{%i}", n));
-//			if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
-//			if (option == "" || option == "y") histStack -> Add (hy);
-//			if (uniformSet) histStack -> Add (hRP);
-//			histStack -> Add (hEP);
-//			if (harmonicFunctionSet) histStack -> Add (hRefEta);
-//			histStack -> Draw ("nostack p e1X0");
-//			leg1 -> Draw ();
-//			c1 -> Write (Form ("hV%iEta", n));
-//			delete histStack;
-//			delete leg1;
-//
-//			if (harmonicFunctionSet) {
-//				HistShift (hx, -shift1 [4]);
-//				HistShift (hy, shift1 [4]);
-//				HistShift (hRP, -0.5 * shift2 [4]);
-//				HistShift (hEP, 0.5 * shift2 [4]);
-//
-//				hx -> Divide (hRefEta);
-//				hy -> Divide (hRefEta);
-//				hEP -> Divide (hRefEta);
-//				hRP -> Divide (hRefEta);
-//
-//				newHist = (TH1D*) hx -> Clone("hV%ixEta_");
-//				HistShift (newHist, shift1 [j]);
-//				if (option == "" || option == "average" || option == "x") allStepsEtaDiv [i].push_back (newHist);
-//				newHist = (TH1D*) hy -> Clone("hV%iyEta_");
-//				HistShift (newHist, -shift1 [j]);
-//				if (option == "" || option == "y") allStepsEtaDiv [i].push_back (newHist);
-//				newHist = (TH1D*) hEP -> Clone("hV%iEta_EP_");
-//				HistShift (newHist, -shift2 [j]);
-//				allStepsEtaDiv [i].push_back (newHist);
-//				if (j == 0 || j == 3) {
-//					newHist = (TH1D*) hRP -> Clone("hV%iEta_RP_");
-//					HistShift (newHist, shift2 [j]);
-//					allStepsEtaDiv [i].push_back (newHist);
-//				}
-//				HistShift (hx, shift1 [4]);
-//				HistShift (hy, -shift1 [4]);
-//				HistShift (hRP, 0.5 * shift2 [4]);
-//				HistShift (hEP, -0.5 * shift2 [4]);
-//
-//				histStack = new THStack("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus " + varName_ + " (", n, n) + stepName [j] + Form (");P_{T} [GeV/c];V_{%i} / V_{%i}^{ref}", n, n));
-//				if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
-//				if (option == "" || option == "y") histStack -> Add (hy);
-//				histStack -> Add (hRP);
-//				histStack -> Add (hEP);
-//				histStack -> Draw ("nostack p e1X0");
-//				leg2 -> Draw ();
-//				unityEta -> Draw ("same");
-//				c1 -> Write (Form ("hV%iEta/Ref", n));
-//				delete histStack;
-//				delete leg2;
-//			}
-//
-//			/*
-//			histStack = new THStack ("histStack", Form ("V_{%i} versus P_{T} and " + varName_ + " (", n) + stepName [j] + ")");
-//			h2x -> SetFillColor (xColor);
-//			h2x -> SetLineColor (xColor);
-//			h2x -> SetMarkerColor (xColor);
-//			h2x -> SetMarkerStyle (markerStyle [j]);
-//			h2y -> SetFillColor (yColor);
-//			h2y -> SetLineColor (yColor);
-//			h2y -> SetMarkerColor (yColor);
-//			h2y -> SetMarkerStyle (markerStyle [j]);
-//
-//			histStack -> Add (h2x);
-//			histStack -> Add (h2y);
-//			histStack -> Add (h2Ref);
-//			histStack -> Draw ("p e1X0");
-//			histStack -> GetXaxis () -> SetTitle ("P_{T}");
-//			histStack -> GetYaxis () -> SetTitle (varName_);
-//
-//			leg1 = new TLegend (0.7, 0.2, 0.85, 0.4);
-//			leg1 -> SetTextSize (0.035);
-//			leg1 -> SetFillColor (0);
-//			leg1 -> AddEntry (h2x, Form ("V_{%i}^{x}", n), "pe");
-//			leg1 -> AddEntry (h2y, Form ("V_{%i}^{y}", n), "pe");
-//			leg1 -> AddEntry (h2Ref, Form ("V_{%i}^{ref}", n), "pe");
-//			leg1 -> Draw ();
-//			c1 -> Write (Form ("h2V%ixyPtEta_p", n));
-//			delete histStack;
-//			delete leg1;
-//
-//			histStack = new THStack ("histStack", Form ("V_{%i} versus P_{T} and " + varName_ + " (", n) + stepName [j] + ")");
-//			histStack -> Add (h2x);
-//			histStack -> Add (h2y);
-//			histStack -> Add (h2Ref);
-//			histStack -> Draw ();
-//			histStack -> GetXaxis () -> SetTitle ("P_{T}");
-//			histStack -> GetYaxis () -> SetTitle (varName_);
-//			histStack -> Draw ();
-//
-//			leg1 = new TLegend (0.7, 0.2, 0.85, 0.4);
-//			leg1 -> SetTextSize (0.035);
-//			leg1 -> SetFillColor (0);
-//			leg1 -> AddEntry (h2x, Form ("V_{%i}^{x}", n), "f");
-//			leg1 -> AddEntry (h2y, Form ("V_{%i}^{y}", n), "f");
-//			leg1 -> AddEntry (h2Ref, Form ("V_{%i}^{ref}", n), "f");
-//			leg1 -> Draw ();
-//
-//			c1 -> Write (Form ("h2V%ixyPtEta_lego", n));
-//			delete histStack;
-//			delete leg1;
-//
-//			h2x -> Divide (h2Ref);
-//			h2x -> SetTitle (Form ("V_{%i}^{x} to V_{%i}^{ref} ratio versus P_{T} and " + varName_ + " (", n, n) + stepName [j] + ")");
-//			h2x -> GetYaxis () -> SetTitle (varName_);
-//			h2x -> GetXaxis () -> SetTitle ("P_{T}");
-//			//h2x -> Fit (func);
-//			h2x -> Draw ("COLZ");
-//			//c1 -> Update();
-//			//stats_ = (TPaveStats*) h2x -> GetListOfFunctions () -> FindObject ("stats");
-//			//stats_ -> SetOptFit (1);
-//			c1 -> Write (Form ("h2V%ixPtEta/Ref", n));
-//
-//			h2y -> Divide (h2Ref);
-//			h2y -> Draw ("COLZ");
-//			c1 -> Write (Form ("h2V%iyPtEta/Ref", n));
-//			*/
-//		}
-//
-//		outputFile -> cd ();
-//
-//		leg1 = new TLegend (0.6, 0.2, 0.8, 0.6);
-//		leg1 -> SetFillColor (0);
-//		leg1 -> SetTextSize (0.04);
-//        if (option == "" || option == "x") leg1 -> AddEntry (hx, methodName [1], "p");
-//        if (option == "" || option == "y") leg1 -> AddEntry (hy, methodName [2], "p");
-//        if (option == "average") leg1 -> AddEntry (hx, methodName [5], "p");
-//		leg1 -> AddEntry (hEP, methodName [3], "l");
-//		if (uniformSet) leg1 -> AddEntry (hRP, methodName [4], "l");
-//		if (harmonicFunctionSet) leg1 -> AddEntry (hRefPt, methodName [0], "p");
-//		for (int j = 0; j < nSteps; j++) {
-//			leg1 -> AddEntry (servHist [j], stepName [j], "p");
-//		}
-//
-//		histStack = new THStack ("histStack", Form ("V_{%i} averaged over ", n) + varName_ + Form (" #in [%.1f,%.1f] versus P_{T} for all correction steps;P_{T} [GeV/c];V_{%i}", etaLow, etaHigh, n));
-//		size = allStepsPt [i].size ();
-//		for (int j = 0; j < size; j++) {
-//			histStack -> Add (allStepsPt [i][j]);
-//		}
-//		histStack -> Draw ("nostack p e1X0");
-//		leg1 -> Draw ();
-//		c1 -> Write (Form ("allStepsV%iPt", n));
-//		delete histStack;
-//
-//		histStack = new THStack ("histStack", Form ("V_{%i} averaged over P_{T} #in [%.1f,%.1f] versus ", n, ptLow, ptHigh) + varName_ + " for all correction steps;" + varName_ + Form (";V_{%i}", n));
-//		size = allStepsEta [i].size ();
-//		for (int j = 0; j < size; j++) {
-//			histStack -> Add (allStepsEta [i][j]);
-//		}
-//		histStack -> Draw ("nostack p e1X0");
-//		leg1 -> Draw ();
-//		c1 -> Write (Form ("allStepsV%iEta", n));
-//		delete histStack;
-//		delete leg1;
-//
-//		if (harmonicFunctionSet) {
-//			leg2 = new TLegend (0.6, 0.2, 0.8, 0.6);
-//			leg2 -> SetFillColor (0);
-//			leg2 -> SetTextSize (0.04);
-//			if (option == "" || option == "x") leg2 -> AddEntry (hx, methodName [1], "l");
-//			if (option == "" || option == "y") leg2 -> AddEntry (hy, methodName [2], "l");
-//            if (option == "average") leg2 -> AddEntry (hx, methodName [5], "p");
-//			leg2 -> AddEntry (hEP, methodName [3], "l");
-//			leg2 -> AddEntry (hRP, methodName [4], "l");
-//			for (int j = 0; j < nSteps; j++) {
-//				leg2 -> AddEntry (servHist [j], stepName [j], "p");
-//			}
-//
-//			histStack = new THStack ("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus P_{T} for all correction steps;P_{T} [GeV/c];V_{%i} / V_{%i}^{ref}", n, n, n, n));
-//			size = allStepsPtDiv [i].size ();
-//			for (int j = 0; j < size; j++) {
-//				histStack -> Add (allStepsPtDiv [i][j]);
-//			}
-//			histStack -> Draw ("nostack p e1X0");
-//			leg2 -> Draw ();
-//			unityPt -> Draw ("same");
-//			c1 -> Write (Form ("allStepsV%iPt/Ref", n));
-//			delete histStack;
-//
-//			histStack = new THStack ("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus ", n, n) + varName_ + " for all correction steps;" + varName_ + Form (";V_{%i} / V_{%i}^{ref}", n, n));
-//			size = allStepsEtaDiv [i].size ();
-//			for (int j = 0; j < size; j++) {
-//				histStack -> Add (allStepsEtaDiv [i][j]);
-//			}
-//			histStack -> Draw ("nostack p e1X0");
-//			leg2 -> Draw ();
-//			unityEta -> Draw ("same");
-//			c1 -> Write (Form ("allStepsV%iEta/Ref", n));
-//			delete histStack;
-//			delete leg2;
-//		}
-//	}
-//	gStyle -> SetOptStat (1);
-//	histFile -> Close ();
-//	outputFile -> Close ();
-//	cout << "Reconstructed and reference values compared!" << endl;
-//}
+
+				hRP = (TH1D*) histFile -> Get (dirName [j] + Form ("/hV%iEta_RP", n));
+				hRP -> SetMarkerColor (RPColor);
+				hRP -> SetLineColor (RPColor);
+				hRP -> SetMarkerStyle (markerStyle [j]);
+				hRP -> SetMarkerSize (markerSize [j]);
+			}
+
+			gStyle -> SetOptStat (0);
+			hx -> SetLineColor (xColor);
+			hx -> SetMarkerColor (xColor);
+			hx -> SetMarkerStyle (markerStyle [j]);
+			hx -> SetMarkerSize (markerSize [j]);
+			hy -> SetLineColor (yColor);
+			hy -> SetMarkerColor (yColor);
+			hy -> SetMarkerStyle (markerStyle [j]);
+			hy -> SetMarkerSize (markerSize [j]);
+			hEP -> SetMarkerColor (EPColor);
+			hEP -> SetLineColor (EPColor);
+			hEP -> SetMarkerStyle (markerStyle [j]);
+			hEP -> SetMarkerSize (markerSize [j]);
+
+			newHist = (TH1D*) hx -> Clone("hV%ixEta_");
+			HistShift (newHist, shift1 [j]);
+			if (option == "" || option == "average" || option == "x") allStepsEta [i].push_back (newHist);
+			newHist = (TH1D*) hy -> Clone("hV%iyEta_");
+			HistShift (newHist, -shift1 [j]);
+			if (option == "" || option == "y") allStepsEta [i].push_back (newHist);
+			newHist = (TH1D*) hEP -> Clone("hV%iEta_EP_");
+			HistShift (newHist, -shift2 [j]);
+			allStepsEta [i].push_back (newHist);
+			if (uniformSet) {
+				if (j == 0 || j == 3) {
+					newHist = (TH1D*) hRP -> Clone("hV%iEta_RP_");
+					HistShift (newHist, shift2 [j]);
+					allStepsEta [i].push_back (newHist);
+				}
+				HistShift (hRP, 0.5 * shift2 [4]);
+			}
+			HistShift (hx, shift1 [4]);
+			HistShift (hy, -shift1 [4]);
+			HistShift (hEP, -0.5 * shift2 [4]);
+
+			histStack = new THStack("histStack", Form ("V_{%i} averaged over P_{T} #in [%.1f,%.1f] versus ", n, ptLow, ptHigh) + varName_ + " (" + stepName [j] + ");" + varName_ + Form (";V_{%i}", n));
+			if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
+			if (option == "" || option == "y") histStack -> Add (hy);
+			if (uniformSet) histStack -> Add (hRP);
+			histStack -> Add (hEP);
+			if (harmonicFunctionSet) histStack -> Add (hRefEta);
+			histStack -> Draw ("nostack p e1X0");
+			leg1 -> Draw ();
+			c1 -> Write (Form ("hV%iEta", n));
+			delete histStack;
+			delete leg1;
+
+			if (harmonicFunctionSet) {
+				HistShift (hx, -shift1 [4]);
+				HistShift (hy, shift1 [4]);
+				HistShift (hRP, -0.5 * shift2 [4]);
+				HistShift (hEP, 0.5 * shift2 [4]);
+
+				hx -> Divide (hRefEta);
+				hy -> Divide (hRefEta);
+				hEP -> Divide (hRefEta);
+				hRP -> Divide (hRefEta);
+
+				newHist = (TH1D*) hx -> Clone("hV%ixEta_");
+				HistShift (newHist, shift1 [j]);
+				if (option == "" || option == "average" || option == "x") allStepsEtaDiv [i].push_back (newHist);
+				newHist = (TH1D*) hy -> Clone("hV%iyEta_");
+				HistShift (newHist, -shift1 [j]);
+				if (option == "" || option == "y") allStepsEtaDiv [i].push_back (newHist);
+				newHist = (TH1D*) hEP -> Clone("hV%iEta_EP_");
+				HistShift (newHist, -shift2 [j]);
+				allStepsEtaDiv [i].push_back (newHist);
+				if (j == 0 || j == 3) {
+					newHist = (TH1D*) hRP -> Clone("hV%iEta_RP_");
+					HistShift (newHist, shift2 [j]);
+					allStepsEtaDiv [i].push_back (newHist);
+				}
+				HistShift (hx, shift1 [4]);
+				HistShift (hy, -shift1 [4]);
+				HistShift (hRP, 0.5 * shift2 [4]);
+				HistShift (hEP, -0.5 * shift2 [4]);
+
+				histStack = new THStack("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus " + varName_ + " (", n, n) + stepName [j] + Form (");P_{T} [GeV/c];V_{%i} / V_{%i}^{ref}", n, n));
+				if (option == "" || option == "average" || option == "x") histStack -> Add (hx);
+				if (option == "" || option == "y") histStack -> Add (hy);
+				histStack -> Add (hRP);
+				histStack -> Add (hEP);
+				histStack -> Draw ("nostack p e1X0");
+				leg2 -> Draw ();
+				unityEta -> Draw ("same");
+				c1 -> Write (Form ("hV%iEta/Ref", n));
+				delete histStack;
+				delete leg2;
+			}
+
+			/*
+			histStack = new THStack ("histStack", Form ("V_{%i} versus P_{T} and " + varName_ + " (", n) + stepName [j] + ")");
+			h2x -> SetFillColor (xColor);
+			h2x -> SetLineColor (xColor);
+			h2x -> SetMarkerColor (xColor);
+			h2x -> SetMarkerStyle (markerStyle [j]);
+			h2y -> SetFillColor (yColor);
+			h2y -> SetLineColor (yColor);
+			h2y -> SetMarkerColor (yColor);
+			h2y -> SetMarkerStyle (markerStyle [j]);
+
+			histStack -> Add (h2x);
+			histStack -> Add (h2y);
+			histStack -> Add (h2Ref);
+			histStack -> Draw ("p e1X0");
+			histStack -> GetXaxis () -> SetTitle ("P_{T}");
+			histStack -> GetYaxis () -> SetTitle (varName_);
+
+			leg1 = new TLegend (0.7, 0.2, 0.85, 0.4);
+			leg1 -> SetTextSize (0.035);
+			leg1 -> SetFillColor (0);
+			leg1 -> AddEntry (h2x, Form ("V_{%i}^{x}", n), "pe");
+			leg1 -> AddEntry (h2y, Form ("V_{%i}^{y}", n), "pe");
+			leg1 -> AddEntry (h2Ref, Form ("V_{%i}^{ref}", n), "pe");
+			leg1 -> Draw ();
+			c1 -> Write (Form ("h2V%ixyPtEta_p", n));
+			delete histStack;
+			delete leg1;
+
+			histStack = new THStack ("histStack", Form ("V_{%i} versus P_{T} and " + varName_ + " (", n) + stepName [j] + ")");
+			histStack -> Add (h2x);
+			histStack -> Add (h2y);
+			histStack -> Add (h2Ref);
+			histStack -> Draw ();
+			histStack -> GetXaxis () -> SetTitle ("P_{T}");
+			histStack -> GetYaxis () -> SetTitle (varName_);
+			histStack -> Draw ();
+
+			leg1 = new TLegend (0.7, 0.2, 0.85, 0.4);
+			leg1 -> SetTextSize (0.035);
+			leg1 -> SetFillColor (0);
+			leg1 -> AddEntry (h2x, Form ("V_{%i}^{x}", n), "f");
+			leg1 -> AddEntry (h2y, Form ("V_{%i}^{y}", n), "f");
+			leg1 -> AddEntry (h2Ref, Form ("V_{%i}^{ref}", n), "f");
+			leg1 -> Draw ();
+
+			c1 -> Write (Form ("h2V%ixyPtEta_lego", n));
+			delete histStack;
+			delete leg1;
+
+			h2x -> Divide (h2Ref);
+			h2x -> SetTitle (Form ("V_{%i}^{x} to V_{%i}^{ref} ratio versus P_{T} and " + varName_ + " (", n, n) + stepName [j] + ")");
+			h2x -> GetYaxis () -> SetTitle (varName_);
+			h2x -> GetXaxis () -> SetTitle ("P_{T}");
+			//h2x -> Fit (func);
+			h2x -> Draw ("COLZ");
+			//c1 -> Update();
+			//stats_ = (TPaveStats*) h2x -> GetListOfFunctions () -> FindObject ("stats");
+			//stats_ -> SetOptFit (1);
+			c1 -> Write (Form ("h2V%ixPtEta/Ref", n));
+
+			h2y -> Divide (h2Ref);
+			h2y -> Draw ("COLZ");
+			c1 -> Write (Form ("h2V%iyPtEta/Ref", n));
+			*/
+		}
+
+		outputFile -> cd ();
+
+		leg1 = new TLegend (0.6, 0.2, 0.8, 0.6);
+		leg1 -> SetFillColor (0);
+		leg1 -> SetTextSize (0.04);
+        if (option == "" || option == "x") leg1 -> AddEntry (hx, methodName [1], "p");
+        if (option == "" || option == "y") leg1 -> AddEntry (hy, methodName [2], "p");
+        if (option == "average") leg1 -> AddEntry (hx, methodName [5], "p");
+		leg1 -> AddEntry (hEP, methodName [3], "l");
+		if (uniformSet) leg1 -> AddEntry (hRP, methodName [4], "l");
+		if (harmonicFunctionSet) leg1 -> AddEntry (hRefPt, methodName [0], "p");
+		for (int j = 0; j < nSteps; j++) {
+			leg1 -> AddEntry (servHist [j], stepName [j], "p");
+		}
+
+		histStack = new THStack ("histStack", Form ("V_{%i} averaged over ", n) + varName_ + Form (" #in [%.1f,%.1f] versus P_{T} for all correction steps;P_{T} [GeV/c];V_{%i}", etaLow, etaHigh, n));
+		size = allStepsPt [i].size ();
+		for (int j = 0; j < size; j++) {
+			histStack -> Add (allStepsPt [i][j]);
+		}
+		histStack -> Draw ("nostack p e1X0");
+		leg1 -> Draw ();
+		c1 -> Write (Form ("allStepsV%iPt", n));
+		delete histStack;
+
+		histStack = new THStack ("histStack", Form ("V_{%i} averaged over P_{T} #in [%.1f,%.1f] versus ", n, ptLow, ptHigh) + varName_ + " for all correction steps;" + varName_ + Form (";V_{%i}", n));
+		size = allStepsEta [i].size ();
+		for (int j = 0; j < size; j++) {
+			histStack -> Add (allStepsEta [i][j]);
+		}
+		histStack -> Draw ("nostack p e1X0");
+		leg1 -> Draw ();
+		c1 -> Write (Form ("allStepsV%iEta", n));
+		delete histStack;
+		delete leg1;
+
+		if (harmonicFunctionSet) {
+			leg2 = new TLegend (0.6, 0.2, 0.8, 0.6);
+			leg2 -> SetFillColor (0);
+			leg2 -> SetTextSize (0.04);
+			if (option == "" || option == "x") leg2 -> AddEntry (hx, methodName [1], "l");
+			if (option == "" || option == "y") leg2 -> AddEntry (hy, methodName [2], "l");
+            if (option == "average") leg2 -> AddEntry (hx, methodName [5], "p");
+			leg2 -> AddEntry (hEP, methodName [3], "l");
+			leg2 -> AddEntry (hRP, methodName [4], "l");
+			for (int j = 0; j < nSteps; j++) {
+				leg2 -> AddEntry (servHist [j], stepName [j], "p");
+			}
+
+			histStack = new THStack ("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus P_{T} for all correction steps;P_{T} [GeV/c];V_{%i} / V_{%i}^{ref}", n, n, n, n));
+			size = allStepsPtDiv [i].size ();
+			for (int j = 0; j < size; j++) {
+				histStack -> Add (allStepsPtDiv [i][j]);
+			}
+			histStack -> Draw ("nostack p e1X0");
+			leg2 -> Draw ();
+			unityPt -> Draw ("same");
+			c1 -> Write (Form ("allStepsV%iPt/Ref", n));
+			delete histStack;
+
+			histStack = new THStack ("histStack", Form ("V_{%i} to V_{%i}^{ref} ratio versus ", n, n) + varName_ + " for all correction steps;" + varName_ + Form (";V_{%i} / V_{%i}^{ref}", n, n));
+			size = allStepsEtaDiv [i].size ();
+			for (int j = 0; j < size; j++) {
+				histStack -> Add (allStepsEtaDiv [i][j]);
+			}
+			histStack -> Draw ("nostack p e1X0");
+			leg2 -> Draw ();
+			unityEta -> Draw ("same");
+			c1 -> Write (Form ("allStepsV%iEta/Ref", n));
+			delete histStack;
+			delete leg2;
+		}
+	}
+	gStyle -> SetOptStat (1);
+	histFile -> Close ();
+	outputFile -> Close ();
+	cout << "Reconstructed and reference values compared!" << endl;
+}
 
 #endif // CFLOWRECONSTRUCTOR_CXX

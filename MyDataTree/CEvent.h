@@ -25,6 +25,10 @@ public:
 	void SetYa (Int_t n, Float_t Ya_);
 	void SetYb (Int_t n, Float_t Yb_);
 	void SetYc (Int_t n, Float_t Yc_);
+	void SetPsiA (Float_t psiA_);
+	void SetPsiB (Float_t psiB_);
+	void SetNa (Int_t nA_);
+	void SetNb (Int_t nB_);
 	void AddTrack (Float_t pt, Float_t eta, Float_t phi, Int_t charge, Int_t pid);
 	void Clear ();
 
@@ -53,7 +57,8 @@ private:
 	Float_t cent;
 	Float_t Xa [MAXNHARMONICS], Xb [MAXNHARMONICS], Xc [MAXNHARMONICS];
 	Float_t Ya [MAXNHARMONICS], Yb [MAXNHARMONICS], Yc [MAXNHARMONICS];
-	Float_t psi [MAXNHARMONICS];
+	Float_t psi [MAXNHARMONICS], psiA, psiB;
+	Int_t nA, nB;
 	TClonesArray* tracks; //->
 
 

@@ -102,15 +102,31 @@ void CEvent::SetYc (Int_t n, Float_t Yc_) {
 		Ya [n - 1] = Yc_;
 }
 
+void CEvent::SetPsiA (Float_t psiA_) {
+    psiA = psiA_;
+}
+
+void CEvent::SetPsiB (Float_t psiB_) {
+    psiB = psiB_;
+}
+
+void CEvent::SetNa (Int_t nA_) {
+    nA = nA_;
+}
+
+void CEvent::SetNb (Int_t nB_) {
+    nB = nB_;
+}
+
 Int_t CEvent::GetNHarmonics () {
 	return nHarmonics;
 }
 
 Float_t CEvent::GetPsi_n (Int_t n) {
-	if (n > nHarmonics) {
-		cout << endl << Form ("Error getting psi %i: %i > nHarmonics!", n, n) << endl;
-		return - 1.0;
-	}
+//	if (n > nHarmonics) {
+//		cout << endl << Form ("Error getting psi %i: %i > nHarmonics!", n, n) << endl;
+//		return - 1.0;
+//	}
 	return psi [n - 1];
 }
 
